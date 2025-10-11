@@ -16,7 +16,6 @@ from langchain_core.tools import tool
 from langgraph.graph import StateGraph, END, START
 from langgraph.prebuilt import ToolNode
 
-ai_key = 'AIzaSyDsRutviDquMkxuPu2Eq8r2F-HktuGraaQ'
 
 
 # --- State Management ---
@@ -38,6 +37,7 @@ PDF_PATH = 'The styrene production.pdf'
 # For embeddings: 'ollama pull mxbai-embed-large'
 LLM_MODEL = "llama3.1:latest"
 EMBEDDING_MODEL = "mxbai-embed-large"
+GPU_CONFIG = {'num_gpu': -1}
 
 
 def setup_rag_chain(pdf_path: str):
@@ -75,7 +75,8 @@ def setup_rag_chain(pdf_path: str):
         )
 
     retriever = vector_store.as_retriever(search_kwargs={"k": 3})
-    llm = ChatOllama(model=LLM_MODEL)
+    llm = ChatOllama(model=LLM_MODEL ,
+    model_kwargs=GPU_CONFIG)
 
     prompt = ChatPromptTemplate.from_template("""
     You are an assistant for question-answering tasks. Use the following pieces of retrieved context to answer the question.
@@ -141,34 +142,34 @@ def create_feed_stream_tool(temperature_C: float, pressure_bar: float, flowrate_
     Returns:
         The initial stream dictionary.
     """
-    try:
-        # Convert kmol/h to mol/s
-        flowrate_mol_s = flowrate_kmol_h / 3.6
-        chemicals = json.loads(chemicals_mole_fraction)
+    # try:
+    # Convert kmol/h to mol/s
+    flowrate_mol_s = flowrate_kmol_h / 3.6
+    chemicals = json.loads(chemicals_mole_fraction)
 
-        # Calculate moles per second from mole fraction and total flowrate
-        total_moles_per_s = {chem: frac * flowrate_mol_s for chem, frac in chemicals.items()}
+    # Calculate moles per second from mole fraction and total flowrate
+    total_moles_per_s = {chem: frac * flowrate_mol_s for chem, frac in chemicals.items()}
 
-        return stream(
-            name='Feed',
-            temperature=temperature_C,
-            pressure=pressure_bar,
-            chemicals_list=list(chemicals.keys()),
-            chemical_fraction=total_moles_per_s,
-            flow=flowrate_mol_s
-        )
-    except Exception as e:
-        print(f"Error creating stream from arguments: {e}. Returning default stream.")
-        # Return a default stream in case of an error
-        flow_mol_s = 2.616  # Default based on example calculation
-        return stream(
-            name='Feed',
-            temperature=95.0,
-            pressure=1.01325,
-            chemicals_list=['benzene', 'ethylene', 'ethyl benzene'],
-            chemical_fraction={'benzene': flow_mol_s * 0.5, 'ethylene': flow_mol_s * 0.5, 'ethyl benzene': 0},
-            flow=flow_mol_s
-        )
+    return stream(
+        name='Feed',
+        temperature=temperature_C,
+        pressure=pressure_bar,
+        chemicals_list=list(chemicals.keys()),
+        chemical_fraction=total_moles_per_s,
+        flow=flowrate_mol_s
+    )
+    # except Exception as e:
+    #     print(f"Error creating stream from arguments: {e}. Returning default stream.")
+    #     # Return a default stream in case of an error
+    #     flow_mol_s = 2.616  # Default based on example calculation
+    #     return stream(
+    #         name='Feed',
+    #         temperature=95.0,
+    #         pressure=1.01325,
+    #         chemicals_list=['benzene', 'ethylene', 'ethyl benzene'],
+    #         chemical_fraction={'benzene': flow_mol_s * 0.5, 'ethylene': flow_mol_s * 0.5, 'ethyl benzene': 0},
+    #         flow=flow_mol_s
+    #     )
 
 
 @tool
@@ -376,7 +377,7 @@ def run_process_simulation(initial_stream: dict, process_info: str, tools_by_nam
 
     def dynamic_equipment_agent(step_description: str, current_stream: dict) -> tuple[dict, str]:
         """A sub-agent that selects and runs the correct equipment tool for a given step."""
-        llm = ChatOllama(model=LLM_MODEL, temperature=0.7)
+        llm = ChatOllama(model=LLM_MODEL,model_kwargs=GPU_CONFIG)
         tool_names = ', '.join(tools_by_name.keys())
 
         # The prompt guides the LLM to choose the right tool and extract the parameters
@@ -486,7 +487,7 @@ def simulation(content: str) -> str:
     creation_tool = create_feed_stream_tool
     tools_by_name = {creation_tool.name: creation_tool.func}
 
-    llm = ChatOllama(model=LLM_MODEL, temperature=0.7)
+    llm = ChatOllama(model=LLM_MODEL,model_kwargs=GPU_CONFIG)
 
     # Prompt the LLM to format the feed stream info into a function call
     creation_prompt = f"""
@@ -537,7 +538,7 @@ def other_discussion(content: str) -> str:
 @tool
 def chemical_discussion(content: str) -> str:
     """This is a chemical discussion function if the user wants to enquire anything about chemicals and chemical engineering other than the details in the paper or related to the simulation."""
-    discussion_llm = ChatOllama(model=LLM_MODEL, temperature=0.7)
+    discussion_llm = ChatOllama(model=LLM_MODEL, model_kwargs=GPU_CONFIG)  #gpt-oss:20b
     print("Chemical discussion mode activated.")
     messages = [
         SystemMessage(content="You are a helpful and knowledgeable assistant specializing in chemical engineering."),
@@ -551,7 +552,7 @@ def chemical_discussion(content: str) -> str:
 @tool
 def process_enquiry_and_simulation(content: str) -> str:
     """This tool is for all questions related to the styrene process, including simulation and paper-based enquiries."""
-    sub_llm = ChatOllama(model=LLM_MODEL, temperature=0.7)
+    sub_llm = ChatOllama(model=LLM_MODEL,model_kwargs=GPU_CONFIG)
     sub_tool_descriptions = """
 TOOLS:
 - rag_enquiry: This tool is for answering questions about the styrene production process as described in the paper.
@@ -580,4 +581,125 @@ You are a specialized assistant for the styrene production process. Your task is
         return sub_response.content
 
 
-print(process_enquiry_and_simulation('Simulate Styrene Production process'))
+# print(process_enquiry_and_simulation('Simulate Styrene Production process'))
+
+#Primary tools for the main agent
+tools = [other_discussion, chemical_discussion, process_enquiry_and_simulation]
+tools_by_name = {tool.name: tool for tool in tools}
+llm = ChatOllama(model=LLM_MODEL,model_kwargs=GPU_CONFIG)
+
+
+def Main_agent(state: AgentState) -> AgentState:
+    print('---AGENT 1: INVOKED---')
+    main_tool_descriptions = """
+TOOLS:
+- other_discussion: Use this tool for general topics not related to chemical engineering.
+- chemical_discussion: Use this tool for general questions about chemicals and chemical engineering, not related to the styrene process.
+- process_enquiry_and_simulation: Use this tool for all questions related to the styrene process, including simulations and enquiries from the paper.
+
+RESPONSE FORMAT:
+To use a tool, you must respond with ONLY the tool name in angle brackets, like <tool_name>. Do not add any other text or explanation. If a tool is relevant, DO NOT provide a direct answer.
+"""
+    system_prompt_content = f'''
+    You are a chemical expert assistant. Your primary task is to correctly route the user's request to one of the available tools.
+    {main_tool_descriptions}
+    '''
+    system_prompt = SystemMessage(content=system_prompt_content)
+    supported_messages = []
+    for message in state['messages']:
+        if isinstance(message, (HumanMessage, AIMessage, SystemMessage)):
+            supported_messages.append(message)
+    all_messages = [system_prompt] + supported_messages
+    response = llm.invoke(all_messages)
+    print(f"LLM Response: {response.content}")
+    tool_call_match = re.search(r'<(\w+)>', response.content)
+
+    if tool_call_match:
+        tool_name = tool_call_match.group(1)
+        print(f"USING TOOL: {tool_name}")
+        tool_call = {
+            "id": str(uuid.uuid4()),
+            "name": tool_name,
+            "args": {"content": state['messages'][-1].content}
+        }
+        return {'messages': [AIMessage(content="", tool_calls=[tool_call])]}
+    else:
+        return {'messages': [response]}
+
+
+def should_continue(state: AgentState) -> str:
+    print('---SHOULD CONTINUE: INVOKED---')
+    last_message = state['messages'][-1]
+    if not hasattr(last_message, 'tool_calls') or not last_message.tool_calls:
+        print('---SHOULD CONTINUE: ENDING TURN---')
+        return "end"
+    else:
+        print('---SHOULD CONTINUE: MOVING TO TOOLS---')
+        return "continue"
+
+
+def print_messages(messages):
+    """Function to print the messages in a more readable format"""
+    if not messages:
+        return
+    for message in messages:
+        if isinstance(message, ToolMessage):
+            print(f"TOOL RESULT: {message.content}")
+        elif isinstance(message, HumanMessage):
+            print(f"USER: {message.content}")
+        elif isinstance(message, SystemMessage):
+            print(f"SYSTEM: {message.content}")
+        else:
+            print(f"ASSISTANT: {message.content}")
+
+
+graph = StateGraph(AgentState)
+graph.add_node('agent', Main_agent)
+tool_node = ToolNode(tools=tools)
+graph.add_node('tools', tool_node)
+graph.add_edge(START, 'agent')
+
+graph.add_conditional_edges(
+    'agent',
+    should_continue,
+    {
+        'continue': 'tools',
+        'end': END
+    }
+)
+graph.add_edge('tools', END)
+
+app = graph.compile()
+
+
+def run_document_agent():
+    print("Welcome to the Chemical Expert Assistant!")
+    print("Type 'exit' or 'quit' to end the conversation.")
+    print("--------------------------------------------------")
+    print("To simulate the process, please ask for a simulation and provide the inlet stream data.")
+    print(
+        "Example prompt: 'Simulate the styrene production process. The inlet stream has a temperature of 25 °C, a pressure of 1 bar, and a flowrate of 100 mol/s. The chemicals involved are benzene and ethylene.'")
+    print("--------------------------------------------------")
+
+    messages = []
+
+    while True:
+        user_input = input('What would you like to do next? ')
+        if user_input.lower() in ['exit', 'quit']:
+            break
+
+        messages.append(HumanMessage(content=user_input))
+
+        result = app.invoke({'messages': messages})
+
+        new_messages = result['messages'][len(messages):]
+        print_messages(new_messages)
+
+        messages = result['messages']
+
+
+if __name__ == '__main__':
+    if not os.path.exists(PDF_PATH):
+        print(f"Error: The PDF file '{PDF_PATH}' was not found. Please place it in the same directory as the script.")
+    else:
+        run_document_agent()
