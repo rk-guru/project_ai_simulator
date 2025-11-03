@@ -21,7 +21,7 @@ import pandas as pd
 
 
 
-API_KEY = 'API key'
+API_KEY = 'AIzaSyDsRutviDquMkxuPu2Eq8r2F-HktuGraaQ'
 PDF_PATH = 'The ethylbenzene production.pdf'
 gemini_model ="gemini-2.5-flash-lite"
 
