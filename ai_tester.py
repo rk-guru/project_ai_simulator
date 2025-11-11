@@ -300,7 +300,7 @@ inputs = ['', '', 'guru', 'guru44@gmail.com',"chennai-28" ,"tamil nadu"]
 driver = webdriver.Chrome()
 driver.maximize_window()
 # Increased wait time for more reliability
-wait = WebDriverWait(driver, 5)
+wait = WebDriverWait(driver, 7)
 url = 'https://demoqa.com'
 
 try:
@@ -356,7 +356,7 @@ try:
             input_element.send_keys(inputs[i])
 
         # A short pause to observe the result of the action
-        time.sleep(2)
+        time.sleep(10)
 
 except Exception as e:
     print(f"An error occurred: {e}")
