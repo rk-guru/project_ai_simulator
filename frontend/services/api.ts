@@ -38,8 +38,6 @@ export interface SimulationResult {
   status: string;
 }
 
-// ... existing imports and interfaces ...
-
 export interface ChatMessage {
   id: string;
   text: string;
@@ -57,36 +55,7 @@ export interface ChatResponse {
   timestamp: string;
 }
 
-// Chat API function
-export const sendChatMessage = async (
-  message: string,
-  conversationHistory: ChatMessage[] = []
-): Promise<ChatResponse> => {
-  const response = await api.post('/api/chat', {
-    message: message,
-    conversation_history: conversationHistory.map(msg => ({
-      text: msg.text,
-      sender: msg.sender,
-      timestamp: msg.timestamp.toISOString(),
-    })),
-  });
-  return response.data;
-};
-
-// Get chat history
-export const getChatHistory = async (conversationId: string) => {
-  const response = await api.get(`/api/chat/history/${conversationId}`);
-  return response.data;
-};
-
-// Clear chat history
-export const clearChatHistory = async (conversationId: string) => {
-  const response = await api.post(`/api/chat/clear/${conversationId}`);
-  return response.data;
-};
-
-
-// Helper function for API requests
+// Helper function for API requests using Fetch API
 const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   const url = `${API_BASE_URL}${endpoint}`;
   
@@ -119,7 +88,37 @@ const apiRequest = async (endpoint: string, options: RequestInit = {}) => {
   }
 };
 
-// API Functions
+// Chat API function - FIXED
+export const sendChatMessage = async (
+  message: string,
+  conversationHistory: ChatMessage[] = []
+): Promise<ChatResponse> => {
+  return await apiRequest('/api/chat', {
+    method: 'POST',
+    body: JSON.stringify({
+      message: message,
+      conversation_history: conversationHistory.map(msg => ({
+        text: msg.text,
+        sender: msg.sender,
+        timestamp: msg.timestamp.toISOString(),
+      })),
+    }),
+  });
+};
+
+// Get chat history
+export const getChatHistory = async (conversationId: string) => {
+  return await apiRequest(`/api/chat/history/${conversationId}`, {
+    method: 'GET',
+  });
+};
+
+// Clear chat history
+export const clearChatHistory = async (conversationId: string) => {
+  return await apiRequest(`/api/chat/clear/${conversationId}`, {
+    method: 'POST',
+  });
+};
 
 // Save flow diagram
 export const saveFlowDiagram = async (diagramData: FlowDiagramData) => {
@@ -175,6 +174,9 @@ export const getEquipmentInfo = async (equipmentType: string) => {
 };
 
 export default {
+  sendChatMessage,
+  getChatHistory,
+  clearChatHistory,
   saveFlowDiagram,
   getFlowDiagram,
   calculateEquipment,

@@ -733,32 +733,33 @@ graph.add_edge('tools', END)
 app = graph.compile()
 
 
-def run_document_agent():
+def run_document_agent(user_input):
     messages = []
 
-    while True:
-        try:
-            user_input = input('>> What would you like to do next? ')
-        except EOFError:
-            break
+    # while True:
+    #     try:
+    #         user_input = input('>> What would you like to do next? ')
+    #     except EOFError:
+    #         break
+    #
+    #     if user_input.lower() in ['exit', 'quit']:
+    #         break
 
-        if user_input.lower() in ['exit', 'quit']:
-            break
+    # Only append the latest user message to the state
+    messages.append(HumanMessage(content=user_input))
 
-        # Only append the latest user message to the state
-        messages.append(HumanMessage(content=user_input))
+    # Invoke the graph with the current state (all messages)
+    result = app.invoke({'messages': messages})
 
-        # Invoke the graph with the current state (all messages)
-        result = app.invoke({'messages': messages})
+    # Determine which messages are new (the LLM's response and tool executions)
+    new_messages = result['messages'][len(messages):]
 
-        # Determine which messages are new (the LLM's response and tool executions)
-        new_messages = result['messages'][len(messages):]
+    # Print the new messages to the user
+    print_messages(new_messages)
 
-        # Print the new messages to the user
-        print_messages(new_messages)
-
-        # Update the overall message history with the results of the graph execution
-        messages = result['messages']
+    # Update the overall message history with the results of the graph execution
+    messages = result['messages']
+    return messages
 
 
 if __name__ == '__main__':

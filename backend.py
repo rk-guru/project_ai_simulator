@@ -5,7 +5,7 @@ from typing import List, Dict, Any, Optional
 from enum import Enum
 import uuid
 import datetime
-from ai_5 import app
+from ai_5 import run_document_agent
 
 app = FastAPI(title="Chemical Process Simulation API")
 
@@ -46,13 +46,13 @@ async def chat_with_ai(request: ChatRequest) -> ChatResponse:
     AI chat endpoint for process simulation assistance
     """
     messages = request.message.lower()
-    result = app.invoke({'messages': messages})
+    response = run_document_agent( messages)
 
-    # Determine which messages are new (the LLM's response and tool executions)
-    new_messages = result['messages'][len(messages):]
-
-    # Update the overall message history with the results of the graph execution
-    response ="hlo"# result['messages']
+    # # Determine which messages are new (the LLM's response and tool executions)
+    # new_messages = result['messages'][len(messages):]
+    #
+    # # Update the overall message history with the results of the graph execution
+    # response =result['messages']
 
     # # Simple rule-based responses (replace with LLM integration)
     # if "temperature" in user_message or "temp" in user_message:
@@ -81,7 +81,7 @@ async def chat_with_ai(request: ChatRequest) -> ChatResponse:
 
     return ChatResponse(
         response=response,
-        timestamp=datetime.now().isoformat()
+        timestamp=datetime.datetime.now().isoformat()
     )
 
 
