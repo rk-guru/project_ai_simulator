@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { EquipmentType, FlowsheetNode, FlowsheetEdge } from '../types';
 import { EquipmentIcon } from './icons/EquipmentIcons';
@@ -88,10 +89,14 @@ const getOrthogonalPathD = (fromNode: FlowsheetNode, toNode: FlowsheetNode): str
   return path;
 };
 
+interface FlowDiagramProps {
+    nodes: FlowsheetNode[];
+    setNodes: React.Dispatch<React.SetStateAction<FlowsheetNode[]>>;
+    edges: FlowsheetEdge[];
+    setEdges: React.Dispatch<React.SetStateAction<FlowsheetEdge[]>>;
+}
 
-const FlowDiagram: React.FC = () => {
-  const [nodes, setNodes] = useState<FlowsheetNode[]>([]);
-  const [edges, setEdges] = useState<FlowsheetEdge[]>([]);
+const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEdges }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
 
   const equipmentCounters = useRef<Record<string, number>>(
@@ -116,7 +121,7 @@ const FlowDiagram: React.FC = () => {
     return () => {
         window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [selectedNodeId]);
+  }, [selectedNodeId, setNodes, setEdges]);
 
   const handleDragStart = (e: React.DragEvent<HTMLDivElement>, type: EquipmentType) => {
     e.dataTransfer.setData('application/reactflow', type);

@@ -1,0 +1,569 @@
+Name,Critical_Volume,Critical_vol_unit,Boiling_point,Boiling_point_unit
+Formaldehyde,0.115,m3/kmol,254.05,K
+Methyl chloride,0.143,m3/kmol,248.95,K
+Methyl iodide,0.185,m3/kmol,315.58,K
+Methane,0.0986,m3/kmol,111.66,K
+Methanol,0.118,m3/kmol,337.69,K
+Methylamine,0.125,m3/kmol,266.82,K
+Trichloroethylene,0.256,m3/kmol,360.1,K
+Dichloroacetyl chloride,0.283,m3/kmol,380.45,K
+Trichloroacetaldehyde,0.288,m3/kmol,370.85,K
+Acetylene,0.1122,m3/kmol,188.4,K
+Dichloroacetaldehyde,0.239,m3/kmol,362,K
+Vinyl chloride,0.179,m3/kmol,259.25,K
+Acetyl chloride,0.196,m3/kmol,323.9,K
+"1,1,2-trichloroethane",0.281,m3/kmol,387,K
+Acetonitrile,0.173,m3/kmol,354.75,K
+Ethylene,0.1311,m3/kmol,169.42,K
+"1,1-dichloroethane",0.236,m3/kmol,330.45,K
+"1,2-dichloroethane",0.22,m3/kmol,356.66,K
+Acetaldehyde,0.154,m3/kmol,294,K
+Ethylene oxide,0.140296,m3/kmol,283.6,K
+Acetic acid,0.171,m3/kmol,391.04,K
+Methyl formate,0.172,m3/kmol,304.9,K
+Ethyl chloride,0.199,m3/kmol,285.42,K
+Ethane,0.1455,m3/kmol,184.55,K
+Ethanol,0.167,m3/kmol,351.8,K
+Dimethyl ether,0.17,m3/kmol,248.31,K
+Ethylene glycol,0.191,m3/kmol,470.45,K
+Dimethyl sulfide,0.201,m3/kmol,310.48,K
+Ethyl mercaptan,0.207,m3/kmol,308.15,K
+Ethylamine,0.1818,m3/kmol,289.75,K
+Acrylonitrile,0.212,m3/kmol,350.5,K
+Methylacetylene,0.1635,m3/kmol,250.12,K
+Propadiene,0.1739,m3/kmol,238.77,K
+Propylene,0.185,m3/kmol,225.45,K
+Acetone,0.209,m3/kmol,329.22,K
+Ethyl formate,0.229,m3/kmol,327.47,K
+Methyl acetate,0.228,m3/kmol,330.09,K
+Propionic acid,0.233,m3/kmol,414.31,K
+"N,n-dimethylformamide",0.26199,m3/kmol,425.15,K
+Propane,0.2,m3/kmol,231.02,K
+Isopropanol,0.22,m3/kmol,355.39,K
+1-propanol,0.219,m3/kmol,370.93,K
+Trimethylamine,0.254,m3/kmol,276.02,K
+Vinylacetylene,0.205,m3/kmol,278.25,K
+Thiophene,0.219,m3/kmol,357.31,K
+Methacrylonitrile,0.265,m3/kmol,363.45,K
+Dimethylacetylene,0.221,m3/kmol,300.13,K
+Ethylacetylene,0.208,m3/kmol,281.21,K
+"1,2-butadiene",0.22,m3/kmol,284,K
+"1,3-butadiene",0.221,m3/kmol,268.62,K
+1-butene,0.2408,m3/kmol,266.92,K
+Cis-2-butene,0.2338,m3/kmol,276.87,K
+Trans-2-butene,0.2377,m3/kmol,274.03,K
+Isobutene,0.2388,m3/kmol,266.24,K
+2-methylpropanal,0.263,m3/kmol,337.25,K
+Methyl ethyl ketone,0.267,m3/kmol,352.71,K
+Tetrahydrofuran,0.224,m3/kmol,339.12,K
+"1,4-dioxane",0.238,m3/kmol,374.5,K
+N-butyric acid,0.292,m3/kmol,436.87,K
+Ethyl acetate,0.286,m3/kmol,350.21,K
+Methyl propionate,0.282,m3/kmol,352.6,K
+N-propyl formate,0.285,m3/kmol,354.69,K
+Sulfolane,0.3365,m3/kmol,560.45,K
+"N,n-dimethylacetamide",0.321,m3/kmol,439.25,K
+N-butane,0.255,m3/kmol,272.66,K
+Isobutane,0.2627,m3/kmol,261.34,K
+1-butanol,0.275,m3/kmol,390.88,K
+2-methyl-1-propanol,0.273,m3/kmol,381.04,K
+2-butanol,0.269,m3/kmol,372.66,K
+2-methyl-2-propanol,0.275,m3/kmol,355.49,K
+Diethyl ether,0.28,m3/kmol,307.59,K
+Diethylene glycol,0.312,m3/kmol,517.95,K
+Diethylamine,0.301,m3/kmol,328.6,K
+Furfural,0.252,m3/kmol,434.85,K
+Pyridine,0.254,m3/kmol,388.37,K
+Isoprene,0.276,m3/kmol,307.205,K
+Cyclopentane,0.26,m3/kmol,322.38,K
+2-methyl-1-butene,0.292,m3/kmol,304.305,K
+3-methyl-1-butene,0.3049,m3/kmol,293.21,K
+2-methyl-2-butene,0.292,m3/kmol,311.7,K
+1-pentene,0.2984,m3/kmol,303.11,K
+Cis-2-pentene,0.3021,m3/kmol,310.07,K
+Trans-2-pentene,0.293,m3/kmol,309.49,K
+3-pentanone,0.336,m3/kmol,375.14,K
+Methyl isopropyl ketone,0.31,m3/kmol,367.55,K
+N-propyl acetate,0.345,m3/kmol,374.65,K
+Isopentane,0.3083,m3/kmol,300.99,K
+N-pentane,0.311,m3/kmol,309.22,K
+Neopentane,0.3032,m3/kmol,282.65,K
+"1,2,4-trichlorobenzene",0.395,m3/kmol,486.15,K
+M-dichlorobenzene,0.351,m3/kmol,446.23,K
+O-dichlorobenzene,0.351,m3/kmol,453.57,K
+P-dichlorobenzene,0.351,m3/kmol,447.21,K
+Bromobenzene,0.324,m3/kmol,429.236,K
+Monochlorobenzene,0.308,m3/kmol,404.91,K
+Iodobenzene,0.351,m3/kmol,461.6,K
+Nitrobenzene,0.349,m3/kmol,483.95,K
+Benzene,0.256,m3/kmol,353.24,K
+Phenol,0.229,m3/kmol,455.04,K
+Aniline,0.2739,m3/kmol,457.17,K
+Cyclohexanone,0.311,m3/kmol,428.58,K
+Cyclohexane,0.308,m3/kmol,353.93,K
+1-hexene,0.3551,m3/kmol,336.63,K
+Methylcyclopentane,0.319,m3/kmol,344.98,K
+Cyclohexanol,0.322,m3/kmol,434,K
+"2,2-dimethylbutane",0.3591,m3/kmol,322.87,K
+"2,3-dimethylbutane",0.3576,m3/kmol,331.12,K
+N-hexane,0.368,m3/kmol,341.88,K
+2-methylpentane,0.3667,m3/kmol,333.4,K
+3-methylpentane,0.3667,m3/kmol,336.4,K
+Triethylene glycol,0.443,m3/kmol,561.5,K
+Triethylamine,0.39,m3/kmol,362.9,K
+Toluene,0.316,m3/kmol,383.79,K
+M-cresol,0.312,m3/kmol,475.38,K
+O-cresol,0.282,m3/kmol,464.17,K
+P-cresol,0.277,m3/kmol,475.12,K
+Methylcyclohexane,0.368,m3/kmol,374.09,K
+Ethylcyclopentane,0.375,m3/kmol,376.59,K
+1-heptene,0.409,m3/kmol,366.79,K
+N-heptane,0.428,m3/kmol,371.57,K
+Styrene,0.352,m3/kmol,418.31,K
+Ethylbenzene,0.374,m3/kmol,409.36,K
+M-xylene,0.375,m3/kmol,412.34,K
+O-xylene,0.37,m3/kmol,417.59,K
+P-xylene,0.378,m3/kmol,411.53,K
+Ethylcyclohexane,0.43,m3/kmol,404.945,K
+N-propylcyclopentane,0.428,m3/kmol,404.11,K
+N-octane,0.492,m3/kmol,398.82,K
+"2,2,3-trimethylpentane",0.436,m3/kmol,382.99,K
+"2,2,4-trimethylpentane",0.4697,m3/kmol,372.39,K
+"2,3,3-trimethylpentane",0.4551,m3/kmol,387.92,K
+"2,3,4-trimethylpentane",0.4562,m3/kmol,386.62,K
+Tetraethylene glycol,0.564,m3/kmol,602.7,K
+Indene,0.368,m3/kmol,455.77,K
+Indane,0.393,m3/kmol,451,K
+Cumene,0.4347,m3/kmol,425.52,K
+N-propylbenzene,0.44,m3/kmol,432.35,K
+N-propylcyclohexane,0.477,m3/kmol,429.897,K
+N-nonane,0.555,m3/kmol,423.97,K
+Naphthalene,0.407,m3/kmol,491.16,K
+1-methylindene,0.436,m3/kmol,471.65,K
+2-methylindene,0.436,m3/kmol,479.45,K
+Dicyclopentadiene,0.445,m3/kmol,443,K
+N-butylbenzene,0.497,m3/kmol,456.42,K
+N-butylcyclohexane,0.534,m3/kmol,454.131,K
+N-decane,0.624,m3/kmol,447.3,K
+1-methylnaphthalene,0.462,m3/kmol,517.84,K
+2-methylnaphthalene,0.462,m3/kmol,514.2,K
+N-undecane,0.689,m3/kmol,469.08,K
+Acenaphthene,0.553,m3/kmol,550.54,K
+Biphenyl,0.491118,m3/kmol,528.15,K
+N-dodecane,0.754,m3/kmol,489.48,K
+Fluorene,0.524,m3/kmol,570.44,K
+N-tridecane,0.823,m3/kmol,508.63,K
+Phenanthrene,0.554,m3/kmol,610.03,K
+N-tetradecane,0.894,m3/kmol,526.76,K
+N-pentadecane,0.966,m3/kmol,543.83,K
+Fluoranthene,0.655,m3/kmol,655.95,K
+Pyrene,0.66,m3/kmol,667.95,K
+1-phenylnaphthalene,0.656,m3/kmol,607.15,K
+N-hexadecane,1.034,m3/kmol,559.98,K
+Chrysene,0.749,m3/kmol,714.15,K
+Cis-decahydronaphthalene,0.48,m3/kmol,468.965,K
+Trans-decahydronaphthalene,0.48,m3/kmol,460.46,K
+Methyl tert-butyl ether,0.329,m3/kmol,328.35,K
+Methyl tert-pentyl ether,0.386,m3/kmol,359.51,K
+2-methyl-2-butanol,0.323,m3/kmol,375.15,K
+Nitrogen trioxide,0.195,m3/kmol,276.65,K
+Nitrogen tetroxide,0.08249,m3/kmol,294.3,K
+Helium-4,0.0573,m3/kmol,4.3,K
+Fluorine,0.0662,m3/kmol,84.95,K
+Krypton,0.0912,m3/kmol,119.74,K
+Xenon,0.118,m3/kmol,165.01,K
+Ozone,0.0894,m3/kmol,161.8,K
+Carbonyl sulfide,0.14,m3/kmol,223.15,K
+Sulfur hexafluoride,0.1984,m3/kmol,209.25,K
+Dimethyl sulfoxide,0.227,m3/kmol,462.15,K
+N-heptadecane,1.103,m3/kmol,574.56,K
+N-octadecane,1.189,m3/kmol,588.3,K
+N-nonadecane,1.1,m3/kmol,603.75,K
+N-heneicosane,1.23,m3/kmol,629.65,K
+N-docosane,1.29,m3/kmol,641.75,K
+N-tricosane,1.35,m3/kmol,653.15,K
+N-tetracosane,1.41,m3/kmol,664.45,K
+N-pentacosane,1.46,m3/kmol,675.05,K
+N-hexacosane,1.52,m3/kmol,685.35,K
+N-heptacosane,1.58,m3/kmol,695.25,K
+N-octacosane,1.63,m3/kmol,704.75,K
+N-nonacosane,1.69,m3/kmol,713.95,K
+Squalane,1.64,m3/kmol,623.15,K
+2-methylhexane,0.421,m3/kmol,363.18,K
+3-methylhexane,0.404,m3/kmol,365,K
+3-ethylpentane,0.4158,m3/kmol,366.63,K
+"2,2-dimethylpentane",0.4158,m3/kmol,352.32,K
+"2,3-dimethylpentane",0.393,m3/kmol,362.91,K
+"2,4-dimethylpentane",0.4175,m3/kmol,353.62,K
+"3,3-dimethylpentane",0.4141,m3/kmol,359.19,K
+"2,2,3-trimethylbutane",0.3976,m3/kmol,354.01,K
+2-methylheptane,0.4882,m3/kmol,390.8,K
+3-methylheptane,0.4711,m3/kmol,392.08,K
+4-methylheptane,0.476,m3/kmol,390.86,K
+3-ethylhexane,0.4605,m3/kmol,391.69,K
+"2,2-dimethylhexane",0.478,m3/kmol,379.99,K
+"2,3-dimethylhexane",0.4682,m3/kmol,388.76,K
+"2,4-dimethylhexane",0.472,m3/kmol,382.58,K
+"2,5-dimethylhexane",0.482,m3/kmol,382.26,K
+"3,3-dimethylhexane",0.4428,m3/kmol,385.12,K
+"3,4-dimethylhexane",0.4588,m3/kmol,390.88,K
+2-methyl-3-ethylpentane,0.4453,m3/kmol,388.81,K
+3-methyl-3-ethylpentane,0.4551,m3/kmol,391.42,K
+"2,2,3,3-tetramethylbutane",0.482,m3/kmol,379.44,K
+"2,2,5-trimethylhexane",0.519,m3/kmol,397.24,K
+"2,4,4-trimethylhexane",0.509,m3/kmol,403.81,K
+"3,3-diethylpentane",0.473,m3/kmol,419.34,K
+"2,2,3,3-tetramethylpentane",0.478,m3/kmol,413.44,K
+"2,2,3,4-tetramethylpentane",0.49,m3/kmol,406.18,K
+"2,2,4,4-tetramethylpentane",0.504,m3/kmol,395.44,K
+"2,3,3,4-tetramethylpentane",0.493,m3/kmol,414.71,K
+2-methyloctane,0.529,m3/kmol,416.44,K
+3-methyloctane,0.529,m3/kmol,417.38,K
+4-methyloctane,0.523,m3/kmol,415.59,K
+3-ethylheptane,0.5213,m3/kmol,416.35,K
+"2,2-dimethylheptane",0.525,m3/kmol,405.97,K
+"3,3,5-trimethylheptane",0.564,m3/kmol,428.83,K
+"2,2-dimethyloctane",0.5897,m3/kmol,430.05,K
+3-methylnonane,0.5904,m3/kmol,440.95,K
+2-methylnonane,0.601,m3/kmol,440.15,K
+4-methylnonane,0.5904,m3/kmol,438.85,K
+5-methylnonane,0.5904,m3/kmol,438.25,K
+Cis-2-hexene,0.345,m3/kmol,342.03,K
+Trans-2-hexene,0.345,m3/kmol,341.02,K
+1-octene,0.468,m3/kmol,394.44,K
+1-nonene,0.526,m3/kmol,420.03,K
+1-undecene,0.657,m3/kmol,465.82,K
+2-methyl-1-pentene,0.359,m3/kmol,335.26,K
+4-methyl-cis-2-pentene,0.346,m3/kmol,329.53,K
+4-methyl-trans-2-pentene,0.346,m3/kmol,331.76,K
+Cyclohexene,0.291,m3/kmol,356.12,K
+"1,1-dimethylcyclopentane",0.36,m3/kmol,361,K
+"Cis-1,2-dimethylcyclopentane",0.37,m3/kmol,372.68,K
+"Trans-1,2-dimethylcyclopentane",0.36,m3/kmol,365.02,K
+"Cis-1,3-dimethylcyclopentane",0.3633,m3/kmol,364.71,K
+"Trans-1,3-dimethylcyclopentane",0.3633,m3/kmol,363.9,K
+Isopropylcyclopentane,0.422,m3/kmol,399.58,K
+1-methyl-1-ethylcyclopentane,0.428,m3/kmol,394.672,K
+N-butylcyclopentane,0.482,m3/kmol,429.75,K
+"1,1-dimethylcyclohexane",0.45,m3/kmol,392.69,K
+"Cis-1,2-dimethylcyclohexane",0.46,m3/kmol,402.94,K
+"Trans-1,2-dimethylcyclohexane",0.46,m3/kmol,396.58,K
+"Cis-1,3-dimethylcyclohexane",0.45,m3/kmol,393.24,K
+"Trans-1,3-dimethylcyclohexane",0.46,m3/kmol,397.61,K
+"Cis-1,4-dimethylcyclohexane",0.46,m3/kmol,397.48,K
+"Trans-1,4-dimethylcyclohexane",0.45,m3/kmol,392.51,K
+Tert-butylcyclohexane,0.51,m3/kmol,444.65,K
+O-ethyltoluene,0.46,m3/kmol,438.33,K
+M-ethyltoluene,0.49,m3/kmol,434.48,K
+P-ethyltoluene,0.44,m3/kmol,435.13,K
+"1,2,3-trimethylbenzene",0.435,m3/kmol,449.23,K
+"1,2,4-trimethylbenzene",0.435,m3/kmol,442.49,K
+Mesitylene,0.43,m3/kmol,437.9,K
+Isobutylbenzene,0.48,m3/kmol,445.9,K
+Sec-butylbenzene,0.478,m3/kmol,446.48,K
+Tert-butylbenzene,0.46,m3/kmol,442.3,K
+O-cymene,0.478,m3/kmol,451.33,K
+M-cymene,0.478,m3/kmol,448.23,K
+P-cymene,0.497,m3/kmol,450.26,K
+O-diethylbenzene,0.502,m3/kmol,456.573,K
+M-diethylbenzene,0.488,m3/kmol,454.252,K
+P-diethylbenzene,0.4805,m3/kmol,456.9,K
+"1,2,3,4-tetramethylbenzene",0.482,m3/kmol,478.19,K
+"1,2,3,5-tetramethylbenzene",0.436,m3/kmol,471.15,K
+"1,2,4,5-tetramethylbenzene",0.482,m3/kmol,470,K
+2-ethyl-m-xylene,0.446,m3/kmol,463.19,K
+2-ethyl-p-xylene,0.461,m3/kmol,460.09,K
+4-ethyl-m-xylene,0.456,m3/kmol,461.59,K
+4-ethyl-o-xylene,0.452,m3/kmol,462.93,K
+1-methyl-3-n-propylbenzene,0.482,m3/kmol,455.13,K
+1-methyl-4-n-propylbenzene,0.482,m3/kmol,456.53,K
+P-diisopropylbenzene,0.584,m3/kmol,483.52,K
+Methyl isobutyl ketone,0.3406,m3/kmol,389.15,K
+3-heptanone,0.421,m3/kmol,420.55,K
+4-heptanone,0.421,m3/kmol,417.15,K
+3-hexanone,0.378,m3/kmol,396.65,K
+2-pentanone,0.301,m3/kmol,375.39,K
+2-hexanone,0.378,m3/kmol,400.7,K
+2-heptanone,0.421,m3/kmol,424.05,K
+5-methyl-2-hexanone,0.421,m3/kmol,417.95,K
+"3,3-dimethyl-2-butanone",0.368,m3/kmol,379.45,K
+Diisobutyl ketone,0.522,m3/kmol,441.4,K
+Diisopropyl ketone,0.416,m3/kmol,397.5,K
+Propanal,0.223,m3/kmol,321.15,K
+Butanal,0.263,m3/kmol,347.95,K
+Pentanal,0.316,m3/kmol,376.15,K
+Hexanal,0.369,m3/kmol,401.45,K
+Heptanal,0.421,m3/kmol,425.95,K
+Diisopropyl ether,0.386,m3/kmol,341.45,K
+Di-n-butyl ether,0.511,m3/kmol,415.35,K
+Di-sec-butyl ether,0.487,m3/kmol,394.2,K
+Methyl ethyl ether,0.221,m3/kmol,280.5,K
+Methyl n-propyl ether,0.274,m3/kmol,312.29,K
+Isopropyl butyl ether,0.435,m3/kmol,378.15,K
+Methyl isobutyl ether,0.329,m3/kmol,331.7,K
+Methyl isopropyl ether,0.276,m3/kmol,303.92,K
+Tert-butyl ethyl ether,0.382,m3/kmol,345.65,K
+Ethyl tert-pentyl ether,0.435,m3/kmol,374.15,K
+Butyl vinyl ether,0.38362,m3/kmol,367.131,K
+Anisole,0.337,m3/kmol,426.95,K
+Isopropyl acetate,0.343881,m3/kmol,361.65,K
+N-butyl acetate,0.4128,m3/kmol,399.12,K
+Isobutyl acetate,0.413,m3/kmol,389.72,K
+N-pentyl acetate,0.442,m3/kmol,422.15,K
+Vinyl acetate,0.266,m3/kmol,345.65,K
+N-hexyl acetate,0.519,m3/kmol,444.65,K
+1-pentanol,0.326,m3/kmol,411.16,K
+2-pentanol,0.327,m3/kmol,392.15,K
+2-methyl-1-butanol,0.329,m3/kmol,401.85,K
+"2,2-dimethyl-1-propanol",0.327,m3/kmol,386.25,K
+1-hexanol,0.381,m3/kmol,430.44,K
+1-heptanol,0.435,m3/kmol,449.81,K
+"1,4-butanediol",0.297,m3/kmol,501.15,K
+Methyl mercaptan,0.145,m3/kmol,279.11,K
+N-propyl mercaptan,0.254,m3/kmol,340.65,K
+Tert-butyl mercaptan,0.307,m3/kmol,337.37,K
+Isobutyl mercaptan,0.307,m3/kmol,361.64,K
+Sec-butyl mercaptan,0.307,m3/kmol,358.13,K
+N-hexyl mercaptan,0.412,m3/kmol,424.15,K
+Methyl ethyl sulfide,0.26,m3/kmol,339.8,K
+Methyl n-propyl sulfide,0.322,m3/kmol,368.69,K
+Methyl t-butyl sulfide,0.37,m3/kmol,372.048,K
+Methyl t-pentyl sulfide,0.412,m3/kmol,401.15,K
+Di-n-propyl sulfide,0.412,m3/kmol,415.978,K
+Diethyl sulfide,0.318,m3/kmol,365.25,K
+Diethyl disulfide,0.358,m3/kmol,427.15,K
+Dimethyl disulfide,0.252,m3/kmol,382.9,K
+Di-n-propyl disulfide,0.518,m3/kmol,466.65,K
+Di-tert-butyl disulfide,0.518,m3/kmol,473.6,K
+Ethyl methyl disulfide,0.312,m3/kmol,407.15,K
+Ethyl propyl disulfide,0.417,m3/kmol,446.85,K
+Diphenyl disulfide,0.584,m3/kmol,583.15,K
+Monoethanolamine,0.225,m3/kmol,444.15,K
+Diethanolamine,0.349,m3/kmol,542,K
+Triethanolamine,0.472,m3/kmol,613,K
+Ethylenediamine,0.206,m3/kmol,390.15,K
+Diisopropylamine,0.031,m3/kmol,357.05,K
+N-aminoethyl piperazine,0.475,m3/kmol,495.15,K
+Diethylenetriamine,0.426,m3/kmol,480,K
+N-aminoethyl ethanolamine,0.387,m3/kmol,517,K
+P-phenylenediamine,0.377,m3/kmol,540,K
+Piperazine,0.267,m3/kmol,419.15,K
+Methylethanolamine,0.25901,m3/kmol,432.388,K
+Dimethylethanolamine,0.331,m3/kmol,404.15,K
+Nitromethane,0.173,m3/kmol,374.35,K
+Nitroethane,0.236,m3/kmol,387.22,K
+1-nitropropane,0.288,m3/kmol,404.33,K
+2-nitropropane,0.288,m3/kmol,393.4,K
+1-nitrobutane,0.338,m3/kmol,425.92,K
+O-nitrotoluene,0.441,m3/kmol,494.85,K
+P-nitrotoluene,0.441,m3/kmol,511.15,K
+M-nitrotoluene,0.441,m3/kmol,504,K
+"2,4-dinitrotoluene",0.487,m3/kmol,553,K
+"2,6-dinitrotoluene",0.487,m3/kmol,553,K
+"3,4-dinitrotoluene",0.487,m3/kmol,610,K
+"2,5-dinitrotoluene",0.487,m3/kmol,590,K
+"3,5-dinitrotoluene",0.487,m3/kmol,588,K
+"2,4,6-trinitrotoluene",0.48,m3/kmol,573,K
+Oxalic acid,0.205,m3/kmol,569,K
+Acrylic acid,0.210712,m3/kmol,414.15,K
+Methacrylic acid,0.27,m3/kmol,433.65,K
+Benzoic acid,0.344,m3/kmol,523.15,K
+O-toluic acid,0.397,m3/kmol,532,K
+P-toluic acid,0.397,m3/kmol,548.15,K
+Salicylic acid,0.364,m3/kmol,529,K
+Adipic acid,0.4,m3/kmol,611,K
+Phthalic acid,0.4235,m3/kmol,651.424,K
+Maleic acid,0.297,m3/kmol,411,K
+Terephthalic acid,0.4235,m3/kmol,665.55,K
+Acetic anhydride,0.29,m3/kmol,413.15,K
+Maleic anhydride,0.223,m3/kmol,473.15,K
+Ketene,0.144,m3/kmol,217.15,K
+Methyl methacrylate,0.324,m3/kmol,374.15,K
+Dimethyl terephthalate,0.529,m3/kmol,555.15,K
+"1,2-propylene oxide",0.186,m3/kmol,307.05,K
+Cumene hydroperoxide,0.463,m3/kmol,442.7,K
+Propionitrile,0.229,m3/kmol,370.5,K
+Dimethyl carbonate,0.25163,m3/kmol,363.24,K
+DiEthyl Carbonate,0.35725,m3/kmol,399.95,K
+Methyl Ethyl Carbonate,0.30149,m3/kmol,380.15,K
+Methyl Phenyl Carbonate,0.42129,m3/kmol,491.76,K
+Ethyl Phenyl Carbonate,0.491,m3/kmol,499.15,K
+DiPhenyl Carbonate,0.59685,m3/kmol,572.99,K
+Ethylene carbonate,0.193,m3/kmol,521.15,K
+Propylene carbonate,0.246,m3/kmol,514.9,K
+2-methyl-1-heptene,0.497,m3/kmol,392.37,K
+2-Methoxy-2-Methyl-Heptane,0.53093,m3/kmol,446.73,K
+2-Methyl-2-Heptanol,0.48244,m3/kmol,467.698,K
+Methylal,0.213,m3/kmol,315,K
+Methyl DiEthanolAmine,0.365,m3/kmol,520.15,K
+Diethylethanolamine,0.4231,m3/kmol,434.15,K
+Diisopropanolamine,0.454,m3/kmol,521.9,K
+Cyclobutane,0.21,m3/kmol,285.66,K
+Isopropyl mercaptan,0.254,m3/kmol,325.75,K
+Glycerol,0.264,m3/kmol,563.15,K
+N-eicosane,1.19,m3/kmol,616.95,K
+DiButyl Carbonate,0.58029,m3/kmol,480.6,K
+para-Hydrogen,0.0643578,m3/kmol,20.271,K
+ortho-Hydrogen,0.0647443,m3/kmol,20.38,K
+"1,2-propylene glycol",0.237,m3/kmol,460.75,K
+1-decene,0.584,m3/kmol,443.75,K
+1-dodecene,0.725,m3/kmol,486.15,K
+1-tetradecene,0.865,m3/kmol,524.25,K
+1-hexadecene,1.008,m3/kmol,558.02,K
+1-octadecene,1.153,m3/kmol,587.97,K
+1-eicosene,1.16,m3/kmol,615.54,K
+Bisphenol a,0.677,m3/kmol,633.65,K
+P-isopropenyl phenol,0.369,m3/kmol,513.7,K
+2-methyl-1-nonene,0.57212,m3/kmol,441.56,K
+2-methyl-1-undecene,0.68364,m3/kmol,484.75,K
+2-methyl-1-tridecene,0.79516,m3/kmol,523.152,K
+2-methyl-1-pentadecene,0.90668,m3/kmol,557.15,K
+2-methyl-1-heptadecene,1.0182,m3/kmol,588.15,K
+2-methyl-1-nonadecene,1.12972,m3/kmol,615.151,K
+Ethyl benzoate,0.489,m3/kmol,485.15,K
+Methyl salicylate,0.41,m3/kmol,496.35,K
+Phenyl acetate,0.406,m3/kmol,468.85,K
+Isopropylamine,0.221,m3/kmol,305.55,K
+Phenetole,0.39,m3/kmol,443.15,K
+Methane-diol,0.14,m3/kmol,407.716,K
+"Ethane-1,1-diol",0.191,m3/kmol,419.15,K
+2-ethoxyethanol,0.294,m3/kmol,408.75,K
+2-chloroethanol,0.212,m3/kmol,401.95,K
+Diethylene glycol diethyl ether,0.528,m3/kmol,462.15,K
+Mercury,0.0563455,m3/kmol,629.73,K
+Diphenyl ether,0.545,m3/kmol,531.46,K
+t-Cinnamaldehyde,0.42801,m3/kmol,490.028,K
+t-Cinnamic acid,0.431,m3/kmol,573.15,K
+3-phenyl-1-propanol,0.44,m3/kmol,507.15,K
+Benzaldehyde,0.324,m3/kmol,452.05,K
+Benzyl alcohol,0.382,m3/kmol,478.6,K
+Benzoic acid,0.344,m3/kmol,523.15,K
+Benzoyl peroxide,0.643,m3/kmol,669,K
+1-Naphthalenemethanol,0.51036,m3/kmol,553.165,K
+"2,3-xylenol",0.47,m3/kmol,491.15,K
+"2,4-xylenol",0.51,m3/kmol,484.08,K
+"2,5-xylenol",0.47,m3/kmol,484.28,K
+"2,6-xylenol",0.52,m3/kmol,474.18,K
+"3,4-xylenol",0.46,m3/kmol,500.1,K
+"3,5-xylenol",0.61,m3/kmol,494.84,K
+Mesitol,0.42249,m3/kmol,493.2,K
+P-cumylphenol,0.659,m3/kmol,608.15,K
+"O,p-bisphenol a",0.676,m3/kmol,633.7,K
+Hydrogen peroxide,0.0777,m3/kmol,423.35,K
+Cumene hydroperoxide,0.463,m3/kmol,442.7,K
+Dicumyl peroxide,0.873,m3/kmol,568.705,K
+P-diisopropylbenzene hydroperoxide,0.619,m3/kmol,572,K
+Ethylbenzene hydroperoxide,0.407,m3/kmol,536,K
+"1,2-dimethoxyethane",0.270636,m3/kmol,358,K
+Diethylene glycol dimethyl ether,0.422,m3/kmol,432.91,K
+Triethylene glycol dimethyl ether,0.548,m3/kmol,489.15,K
+Tetraethylene glycol dimethyl ether,0.674,m3/kmol,548.95,K
+Pentaethylene glycol dimethyl ether,0.821,m3/kmol,615.1,K
+Propylene glycol monomethyl ether,0.284,m3/kmol,393.25,K
+Propylene glycol monomethyl ether acetate,0.409,m3/kmol,418.65,K
+Acrolein,0.197,m3/kmol,325.84,K
+Malonic acid,0.258,m3/kmol,413.15,K
+Dimethylmalonate,0.325,m3/kmol,452.5,K
+Cyrene,0.39637,m3/kmol,499,K
+PentaEthylene Glycol,0.69949,m3/kmol,591.274,K
+HexaEthylene Glycol,0.82811,m3/kmol,618.249,K
+DiPropylene Glycol,0.415,m3/kmol,504.95,K
+TriPropylene Glycol,0.596,m3/kmol,554.008,K
+TetraPropylene Glycol,0.875,m3/kmol,582.2,K
+PentaPropylene Glycol,1.155,m3/kmol,617.8,K
+HexaPropylene Glycol,0.84635,m3/kmol,652.812,K
+Diacetone alcohol,0.387,m3/kmol,437.594,K
+Mesityl oxide,0.355,m3/kmol,402.95,K
+Formic acid,0.125,m3/kmol,373.71,K
+Caproic acid,0.408,m3/kmol,478.85,K
+Caprylic acid,0.523,m3/kmol,512.85,K
+Capric acid,0.639,m3/kmol,543.15,K
+Lauric acid,0.767,m3/kmol,571.85,K
+Myristic acid,0.89,m3/kmol,599.35,K
+Palmitic acid,1.015,m3/kmol,624.15,K
+Stearic acid,1.14,m3/kmol,648.35,K
+Oleic acid,1,m3/kmol,633,K
+Linoleic acid,0.99,m3/kmol,634,K
+Linolenic acid,0.982,m3/kmol,632,K
+Methyl caproate,0.45263,m3/kmol,423,K
+Methyl caprylate,0.56415,m3/kmol,467.7,K
+Methyl caprate,0.714,m3/kmol,505,K
+Methyl laurate,0.85,m3/kmol,540,K
+Methyl myristate,0.993,m3/kmol,596.15,K
+Methyl palmitate,1.15,m3/kmol,469.15,K
+Methyl stearate,1.31,m3/kmol,451.15,K
+Methyl oleate,1.06,m3/kmol,617,K
+Methyl linoleate,1.08953,m3/kmol,604.734,K
+Methyl linolenate,1.07342,m3/kmol,604.715,K
+1-octanol,0.509,m3/kmol,467.1,K
+1-nonanol,0.576,m3/kmol,485.2,K
+1-decanol,0.645,m3/kmol,503,K
+1-undecanol,0.715,m3/kmol,520.3,K
+1-dodecanol,0.787,m3/kmol,537.1,K
+1-tridecanol,0.86,m3/kmol,547.15,K
+1-tetradecanol,0.826,m3/kmol,564,K
+1-pentadecanol,1.01,m3/kmol,583.9,K
+1-hexadecanol,1.08,m3/kmol,598,K
+1-heptadecanol,1.16,m3/kmol,611.3,K
+1-octadecanol,1.046,m3/kmol,624,K
+1-nonadecanol,1.11334,m3/kmol,624,K
+1-eicosanol,1.156,m3/kmol,646,K
+Octanal,0.474,m3/kmol,445.93,K
+Nonanal,0.527,m3/kmol,468.15,K
+Decanal,0.58,m3/kmol,488.15,K
+Undecanal,0.632,m3/kmol,506.15,K
+Dodecanal,0.685,m3/kmol,523.15,K
+Tridecanal,0.738,m3/kmol,540.15,K
+Tetradecanal,0.82616,m3/kmol,550.837,K
+Pentadecanal,0.88192,m3/kmol,559.15,K
+Hexadecanal,0.93768,m3/kmol,574.827,K
+Heptadecanal,0.99344,m3/kmol,585.843,K
+Octadecanal,1.0492,m3/kmol,596.295,K
+Nonadecanal,1.10496,m3/kmol,606.238,K
+Tricaprylin,2.21,m3/kmol,737.5,K
+Tricaprin,2.82,m3/kmol,782.1,K
+Trilaurin,3.49,m3/kmol,818.9,K
+Trimyristin,4.2,m3/kmol,849.8,K
+Tripalmitin,4.95,m3/kmol,876,K
+Tristearin,5.71,m3/kmol,898.3,K
+Triolein,5.68,m3/kmol,896.8,K
+Trilinolein,5.47,m3/kmol,895,K
+Trilenollenin,5.62,m3/kmol,893.8,K
+N-methyl-2-pyrrolidone,0.316,m3/kmol,475.15,K
+Benzothiophene,0.349,m3/kmol,494.15,K
+Phenyl mercaptan,0.315,m3/kmol,441.15,K
+"1,1,1,2-tetrafluoroethane",0.1988,m3/kmol,246.6,K
+2-methyl-2-pentenal,0.355,m3/kmol,410.65,K
+Propanal,0.223,m3/kmol,321.15,K
+Nonanal,0.527,m3/kmol,468.15,K
+Undecanal,0.632,m3/kmol,506.15,K
+Tridecanal,0.738,m3/kmol,540.15,K
+4-formylmorpholine,0.328,m3/kmol,513.15,K
+Arachidic acid,1.27,m3/kmol,668.53,K
+Pimaric acid,0.998,m3/kmol,623.1,K
+Palustric acid,0.993,m3/kmol,616,K
+Isopimaric acid,0.998,m3/kmol,623.1,K
+Abietic acid,0.998,m3/kmol,649.7,K
+Dehydroabietic acid,0.98,m3/kmol,645,K
+Neoabietic acid,0.998,m3/kmol,631,K
+Sitosterol,1.46,m3/kmol,778,K
+Alpha-terpineol,0.507,m3/kmol,492.95,K
+Alpha-terpinene,0.489,m3/kmol,450.15,K
+Alpha-pinene,0.504,m3/kmol,428.15,K
+Paraldehyde,0.365,m3/kmol,397.02,K
+2-methylpyridine,0.32,m3/kmol,402.45,K
+3-methylpyridine,0.32,m3/kmol,417.29,K
+4-methylpyridine,0.326,m3/kmol,418.05,K
+"2,6-dimethylpyridine",0.373,m3/kmol,417.15,K
+"2,5-dimethylpyridine",0.373,m3/kmol,417.15,K
+Dichloromethane,0.185,m3/kmol,312.9,K
+"1,2,4-trichlorobenzene",0.405925,m3/kmol,486.15,K
+"1,2,3-trichlorobenzene",0.395,m3/kmol,491.75,K
+"1,3,5-trichlorobenzene",0.425,m3/kmol,481.15,K
+2-methylanisole,0.3935,m3/kmol,444.2,K
+"2,6-dimethylanisole",0.4495,m3/kmol,455.7,K
+"2,4,6-trimethylanisole",0.5055,m3/kmol,478.7,K
+o-ethylphenol,0.3415,m3/kmol,469.2,K
+"2,3-dihydrobenzofuran",0.3755,m3/kmol,461.7,K
+Propargyl alcohol,0.19,m3/kmol,386.65,K
+"2-butyne-1,4-diol",0.256,m3/kmol,511.15,K

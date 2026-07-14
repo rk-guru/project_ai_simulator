@@ -8,7 +8,8 @@ from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMe
 from langchain_core.tools import tool
 from langchain_google_genai import ChatGoogleGenerativeAI, GoogleGenerativeAIEmbeddings
 from langchain_community.document_loaders import PyPDFLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
+# from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import Chroma
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.runnables import RunnablePassthrough
@@ -330,6 +331,7 @@ def flash_tool_func(inlet_stream: dict,eq_name,stream_name) -> list: #outlet_tem
     return [outlet_stream1, outlet_stream2], energy_dict
 
 def dist_tool_func(inlet_stream: dict,outlet_temp_C:float,eq_name, stream_name) -> list: #
+
     """Flash separator (50/50 split for simplification)."""
     outlet_stream1 = inlet_stream.copy()
     outlet_stream2 = inlet_stream.copy()
@@ -759,6 +761,7 @@ def run_document_agent(user_input):
 
     # Update the overall message history with the results of the graph execution
     messages = result['messages']
+    print('message = ',messages)
     return messages
 
 

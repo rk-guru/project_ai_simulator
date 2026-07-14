@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+pydantic
+langchain_google_genai
+langchain
+langgraph
+pandas
+langchain_community
+langchain-text-splitter
+graphviz
+flask
+flask_cors
+PyPDF2
+fitz
+tools
+chromadb
