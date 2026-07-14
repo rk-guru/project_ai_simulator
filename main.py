@@ -7,9 +7,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
-from .database import init_db, get_db, Project, Message, Simulation, File as DBFile, SessionLocal
-from .ai_engine import AIEngine
-from . import dummy_data
+from database import init_db, get_db, Project, Message, Simulation, File as DBFile, SessionLocal
+from ai_engine import AIEngine
+import dummy_data
 
 app = FastAPI()
 
@@ -42,11 +42,10 @@ class ProjectUpdate(BaseModel):
     results: Optional[List[Dict[str, Any]]] = None
 
 class ChatRequest(BaseModel):
-    projectId: str
-    chat: str
-    chat_history: List[Dict[str, Any]]
-    model_name: str
-    api_key: str
+    message: str
+    chat_history: Optional[List[Dict[str, Any]]] = None
+    model_name: Optional[str] = "gpt-4"
+    api_key: Optional[str] = None
 
 class SimulationRunRequest(BaseModel):
     projectId: str
@@ -174,21 +173,51 @@ async def upload_file(project_id: str, file: UploadFile = File(...), db: Session
 
     return {"filename": file.filename, "message": "File uploaded successfully"}
 
-@app.post("/chat")
-async def chat(request: ChatRequest, db: Session = Depends(get_db)):
-    # Dummy Mode: Use dummy_data instead of actual AI engine
-    reply = dummy_data.generate_dummy_chat_response(request.chat)
-    flow_diagram = dummy_data.generate_dummy_flow_diagram()
+@app.post("/projects/{project_id}/chat")
+async def chat(project_id: str, request: ChatRequest, db: Session = Depends(get_db)):
+    # 1. Get project and its files for RAG
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
 
-    # 3. Save to DB
-    user_msg = Message(project_id=request.projectId, role="user", content=request.chat)
-    ai_msg = Message(project_id=request.projectId, role="ai", content=reply)
+    files = [{"filepath": f.filepath, "filename": f.filename} for f in project.files]
+
+    # 2. Initialize AI Engine with model and key from request
+    try:
+        ai_engine = AIEngine(api_key=request.api_key, model_name=request.model_name)
+
+        # Prepare chat history for ai_engine
+        # Frontend sends messages array, we need to convert it to the format expected by run_chat
+        # Frontend messages: [{id, sender, text}, ...]
+        # ai_engine expects: [{'role': 'user', 'content': '...'}, ...]
+        history = []
+        if request.chat_history:
+            for msg in request.chat_history:
+                role = "user" if msg.get('sender') == 'user' else "ai"
+                history.append({"role": role, "content": msg.get('text', '')})
+
+        # 3. Generate response using AI Engine
+        reply, flow_diagram = await ai_engine.run_chat(
+            project_id=project_id,
+            files=files,
+            chat=request.message,
+            chat_history=history
+        )
+    except Exception as e:
+        print(f"AI Engine Error: {e}")
+        # Fallback to dummy data if AI Engine fails
+        reply = dummy_data.generate_dummy_chat_response(request.message)
+        flow_diagram = dummy_data.generate_dummy_flow_diagram()
+
+    # 4. Save to DB
+    user_msg = Message(project_id=project_id, role="user", content=request.message)
+    ai_msg = Message(project_id=project_id, role="ai", content=reply)
     db.add(user_msg)
     db.add(ai_msg)
     db.commit()
 
     return {
-        "reply": reply,
+        "text": reply,
         "flow_diagram": flow_diagram
     }
 

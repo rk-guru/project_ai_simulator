@@ -74,7 +74,17 @@ const Chatbot: React.FC<ChatbotProps> = ({ projectId, messages, setMessages }) =
     setInput('');
 
     // Call backend API for chat response (context is handled on backend via file system)
-    const aiResponseText = await generateChatResponse(projectId, input);
+    const modelName = localStorage.getItem('modelName') || 'gemini-2.0-flash';
+    const apiKey = localStorage.getItem('apiKey') || '';
+    const currentHistory = [...messages, userMessage];
+
+    const aiResponseText = await generateChatResponse(
+      projectId,
+      input,
+      currentHistory,
+      modelName,
+      apiKey
+    );
 
     const aiMessage: ChatMessage = {
       id: (Date.now() + 1).toString(),

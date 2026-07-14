@@ -1,13 +1,24 @@
 const API_URL = 'http://localhost:8000';
 
-export const generateChatResponse = async (projectId: string, message: string): Promise<string> => {
+export const generateChatResponse = async (
+  projectId: string,
+  message: string,
+  history: any[],
+  modelName: string,
+  apiKey: string
+): Promise<string> => {
   try {
     const response = await fetch(`${API_URL}/projects/${projectId}/chat`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({
+        message,
+        chat_history: history,
+        model_name: modelName,
+        api_key: apiKey
+      }),
     });
 
     if (!response.ok) {
