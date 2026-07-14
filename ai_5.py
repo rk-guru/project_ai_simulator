@@ -22,9 +22,9 @@ import pandas as pd
 
 
 
-API_KEY = 'AIzaSyDsRutviDquMkxuPu2Eq8r2F-HktuGraaQ'
+API_KEY ="AIzaSyBnUG6nttk06Yqak4nSo-v0iXvs2DF7gBg"# 'AIzaSyDsRutviDquMkxuPu2Eq8r2F-HktuGraaQ'
 PDF_PATH = 'The ethylbenzene production.pdf'
-gemini_model ="gemini-2.5-flash-lite"
+gemini_model ="gemma-4-31b-it"#"gemma4:31b-cloud"#"gemini-2.5-flash-lite"
 
 # Initialize Google Generative AI components
 embeddings = GoogleGenerativeAIEmbeddings(
