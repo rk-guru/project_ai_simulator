@@ -10,6 +10,7 @@ const App: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [activeProjectId, setActiveProjectId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
+  const [isBackendOffline, setIsBackendOffline] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
 
   // Load projects from DB on mount
@@ -18,7 +19,8 @@ const App: React.FC = () => {
       try {
         const savedProjects = await dbService.getAllProjects();
         setProjects(savedProjects);
-        
+        setIsBackendOffline(false);
+
         // Set active project to the first one if exists, or created one
         if (savedProjects.length > 0) {
            // Try to restore last session or default to first
@@ -26,6 +28,7 @@ const App: React.FC = () => {
         }
       } catch (error) {
         console.error("Failed to load projects from DB", error);
+        setIsBackendOffline(true);
       } finally {
         setIsLoading(false);
       }
@@ -36,33 +39,39 @@ const App: React.FC = () => {
   const activeProject = projects.find(p => p.id === activeProjectId);
 
   const createNewProject = async () => {
-    const newId = String(Date.now());
-    const newProject: Project = {
-      id: newId,
-      name: `New Project ${projects.length + 1}`,
-      messages: [],
-      nodes: [],
-      edges: [],
-      results: []
-    };
-    
-    // Optimistic update
-    setProjects(prev => [...prev, newProject]);
-    setActiveProjectId(newId);
+    try {
+      const projectName = `New Project ${projects.length + 1}`;
+      const projectData = await dbService.createProject(projectName);
 
-    // Save to DB
-    await dbService.saveProject(newProject);
+      const newProject: Project = {
+        id: projectData.id,
+        name: projectData.name,
+        messages: [],
+        nodes: [],
+        edges: [],
+        results: []
+      };
+
+      setProjects(prev => [...prev, newProject]);
+      setActiveProjectId(newProject.id);
+    } catch (error) {
+      console.error("Failed to create project", error);
+      setIsBackendOffline(true);
+    }
   };
 
   const deleteProject = async (id: string) => {
-    // Optimistic update
-    setProjects(prev => prev.filter(p => p.id !== id));
-    if (activeProjectId === id) {
-      setActiveProjectId('');
+    try {
+      // Optimistic update
+      setProjects(prev => prev.filter(p => p.id !== id));
+      if (activeProjectId === id) {
+        setActiveProjectId('');
+      }
+      await dbService.deleteProject(id);
+    } catch (error) {
+      console.error("Failed to delete project", error);
+      setIsBackendOffline(true);
     }
-
-    // Delete from DB
-    await dbService.deleteProject(id);
   };
 
   const updateProject = async (id: string, data: Partial<Project>) => {
@@ -70,8 +79,10 @@ const App: React.FC = () => {
       const updatedProjects = prev.map(p => {
         if (p.id === id) {
           const updatedProject = { ...p, ...data };
-          // Fire and forget save to DB (or handle async separately)
-          dbService.saveProject(updatedProject).catch(err => console.error("Save failed", err));
+          dbService.saveProject(updatedProject).catch(err => {
+            console.error("Save failed", err);
+            setIsBackendOffline(true);
+          });
           return updatedProject;
         }
         return p;
@@ -79,6 +90,24 @@ const App: React.FC = () => {
       return updatedProjects;
     });
   };
+
+  if (isBackendOffline) {
+      return (
+          <div className="flex h-screen items-center justify-center bg-slate-900 text-white flex-col">
+              <h1 className="text-2xl font-bold mb-4">Backend Offline</h1>
+              <p className="text-gray-400 mb-6 text-center max-w-md px-4">
+                  Please ensure the AI Simulation backend is running on port 8000.<br/>
+                  If it is running, check your network connection.
+              </p>
+              <button
+                  onClick={() => window.location.reload()}
+                  className="px-4 py-2 bg-indigo-600 rounded-md hover:bg-indigo-500 transition-colors"
+              >
+                  Retry Connection
+              </button>
+          </div>
+      );
+  }
 
   if (isLoading) {
       return <div className="flex h-screen items-center justify-center bg-slate-900 text-white">Loading...</div>;

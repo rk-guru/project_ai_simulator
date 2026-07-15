@@ -5,6 +5,7 @@ import Chatbot from './Chatbot';
 import FlowDiagram from './FlowDiagram';
 import ResultTable from './ResultTable';
 import SaveIcon from './icons/SaveIcon';
+import Modal from './Modal';
 import { dbService } from '../services/db';
 
 interface MainContentProps {
@@ -39,6 +40,7 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
   const [nodes, setNodes] = useState<FlowsheetNode[]>(project.nodes || []);
   const [edges, setEdges] = useState<FlowsheetEdge[]>(project.edges || []);
   const [results, setResults] = useState<any[]>(project.results || []);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
   const processedMessageIds = useRef<Set<string>>(new Set((project.messages || []).map(m => m.id)));
 
@@ -186,6 +188,10 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
   };
 
   const handleSave = () => {
+    setIsSaveModalOpen(true);
+  };
+
+  const confirmSave = () => {
     onUpdateProject(project.id, {
         name: projectName,
         messages,
@@ -193,6 +199,7 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
         edges,
         results
     });
+    setIsSaveModalOpen(false);
   };
 
   const handleRunSimulation = async () => {
@@ -264,6 +271,18 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
         <div className="flex-1 overflow-y-auto p-6">
           {renderTabContent()}
         </div>
+        {isSaveModalOpen && (
+          <Modal
+            title="Save Project"
+            confirmLabel="Save"
+            onConfirm={confirmSave}
+            onClose={() => setIsSaveModalOpen(false)}
+          >
+            <p className="text-sm text-gray-300">
+              Are you sure you want to save the current changes to "{projectName}"?
+            </p>
+          </Modal>
+        )}
       </div>
     </div>
   );

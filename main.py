@@ -70,7 +70,7 @@ async def get_projects(db: Session = Depends(get_db)):
         {
             "id": p.id,
             "name": p.name,
-            "messages": [ { "role": m.role, "content": m.content } for m in p.messages ],
+            "messages": [ { "sender": m.role if m.role == 'user' else 'ai', "text": m.content } for m in p.messages ],
             "nodes": [], # These would be extracted from the last simulation
             "edges": [],
             "results": []
@@ -86,7 +86,7 @@ async def get_project(project_id: str, db: Session = Depends(get_db)):
     return {
         "id": project.id,
         "name": project.name,
-        "messages": [ { "role": m.role, "content": m.content } for m in project.messages ],
+        "messages": [ { "sender": m.role if m.role == 'user' else 'ai', "text": m.content } for m in project.messages ],
         "files": [ { "name": f.filename } for f in project.files ]
     }
 
@@ -104,7 +104,9 @@ async def update_project(project_id: str, data: ProjectUpdate, db: Session = Dep
         # Simple sync: clear and re-add
         db.query(Message).filter(Message.project_id == project_id).delete()
         for msg in data.messages:
-            db.add(Message(project_id=project_id, role=msg['role'], content=msg['content']))
+            role = msg.get('role') or ("user" if msg.get('sender') == 'user' else "ai")
+            content = msg.get('content') or msg.get('text', '')
+            db.add(Message(project_id=project_id, role=role, content=content))
 
     # For nodes/edges/results, we can store them as a simulation record
     if data.nodes or data.edges or data.results:
@@ -195,6 +197,9 @@ async def chat(project_id: str, request: ChatRequest, db: Session = Depends(get_
             for msg in request.chat_history:
                 role = "user" if msg.get('sender') == 'user' else "ai"
                 history.append({"role": role, "content": msg.get('text', '')})
+
+        print("request.message",request.message)
+        print("history",history)
 
         # 3. Generate response using AI Engine
         reply, flow_diagram = await ai_engine.run_chat(
