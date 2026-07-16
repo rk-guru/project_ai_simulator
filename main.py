@@ -23,6 +23,7 @@ app.add_middleware(
 
 # Configuration
 UPLOAD_DIR = "uploads"
+RAG_DIR = "RAG"
 
 
 if not os.path.exists(UPLOAD_DIR):
@@ -50,6 +51,7 @@ class ChatRequest(BaseModel):
 class SimulationRunRequest(BaseModel):
     projectId: str
     project_data: Dict[str, Any]
+    api_key: Optional[str] = None
 
 # --- Endpoints ---
 
@@ -131,6 +133,11 @@ async def delete_project(project_id: str, db: Session = Depends(get_db)):
     if os.path.exists(project_dir):
         shutil.rmtree(project_dir)
 
+    # Delete RAG folder
+    rag_dir = os.path.join(RAG_DIR, project_id)
+    if os.path.exists(rag_dir):
+        shutil.rmtree(rag_dir)
+
     db.delete(project)
     db.commit()
     return {"message": "Project deleted successfully"}
@@ -160,7 +167,7 @@ async def generate_report(project_id: str, db: Session = Depends(get_db)):
 
 
 @app.post("/projects/{project_id}/upload")
-async def upload_file(project_id: str, file: UploadFile = File(...), db: Session = Depends(get_db)):
+async def upload_file(project_id: str, file: UploadFile = File(...), api_key: Optional[str] = Form(None), db: Session = Depends(get_db)):
     project_dir = os.path.join(UPLOAD_DIR, project_id)
     if not os.path.exists(project_dir):
         os.makedirs(project_dir)
@@ -172,6 +179,15 @@ async def upload_file(project_id: str, file: UploadFile = File(...), db: Session
     db_file = DBFile(project_id=project_id, filename=file.filename, filepath=file_path)
     db.add(db_file)
     db.commit()
+
+    # Automatic Ragging if api_key is provided
+    if api_key:
+        try:
+            from ai_engine import AIEngine
+            ai_engine = AIEngine(api_key=api_key)
+            ai_engine.process_file_for_rag(project_id, file_path)
+        except Exception as e:
+            print(f"Automatic ragging failed: {e}")
 
     return {"filename": file.filename, "message": "File uploaded successfully"}
 
@@ -202,17 +218,26 @@ async def chat(project_id: str, request: ChatRequest, db: Session = Depends(get_
         print("history",history)
 
         # 3. Generate response using AI Engine
-        reply, flow_diagram = await ai_engine.run_chat(
-            project_id=project_id,
-            files=files,
-            chat=request.message,
-            chat_history=history
-        )
+        try:
+            reply, flow_diagram = await ai_engine.run_chat(
+                project_id=project_id,
+                files=files,
+                chat=request.message,
+                chat_history=history
+            )
+        except Exception as inner_e:
+            print(f"AI Engine run_chat Error: {inner_e}")
+            # Fallback: Use the LLM directly without RAG/Graph for a basic response
+            from langchain_core.messages import HumanMessage
+            response = ai_engine.llm.invoke([HumanMessage(content=request.message)])
+            reply = response.content
+            flow_diagram = None
+
     except Exception as e:
-        print(f"AI Engine Error: {e}")
-        # Fallback to dummy data if AI Engine fails
-        reply = dummy_data.generate_dummy_chat_response(request.message)
-        flow_diagram = dummy_data.generate_dummy_flow_diagram()
+        print(f"AI Engine initialization failed: {e}")
+        # If we can't initialize the AI Engine (e.g. bad API key), we can't get AI data
+        reply = f"AI Engine Error: {str(e)}"
+        flow_diagram = None
 
     # 4. Save to DB
     user_msg = Message(project_id=project_id, role="user", content=request.message)
@@ -228,8 +253,19 @@ async def chat(project_id: str, request: ChatRequest, db: Session = Depends(get_
 
 @app.post("/simulation/run")
 async def run_simulation(request: SimulationRunRequest, db: Session = Depends(get_db)):
-    # Use dummy data generator
-    results = dummy_data.generate_dummy_simulation_results(request.project_data)
+    # Try to use AI Engine if API key is provided
+    results = []
+    if request.api_key:
+        try:
+            from ai_engine import AIEngine
+            ai_engine = AIEngine(api_key=request.api_key)
+            results = ai_engine.generate_simulation_results(request.project_data)
+        except Exception as e:
+            print(f"AI Simulation Error: {e}")
+
+    # Fallback to dummy data generator if AI failed or no API key provided
+    if not results:
+        results = dummy_data.generate_dummy_simulation_results(request.project_data)
 
     sim = Simulation(
         project_id=request.projectId,

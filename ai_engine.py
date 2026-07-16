@@ -25,6 +25,8 @@ def clean_string(input_string):
     cleaned_string = input_string.replace('```json', '').replace('\n', '').replace('```', '')
     return cleaned_string.strip()
 
+RAG_DIR = "RAG"
+
 class AIEngine:
     def __init__(self, api_key: str, model_name: str = "gemini-2.0-flash"):
         self.api_key = api_key
@@ -46,7 +48,7 @@ class AIEngine:
             return None
 
         # Use project_id as part of the persist directory to avoid collisions
-        persist_directory = f"./chroma_db_{project_id}"
+        persist_directory = os.path.join(RAG_DIR, project_id)
 
         # If DB exists, load it. Otherwise, create it from uploaded files.
         if not os.path.exists(persist_directory) or not os.listdir(persist_directory):
@@ -93,6 +95,53 @@ class AIEngine:
             | StrOutputParser()
         )
         return self.rag_chain
+
+    def process_file_for_rag(self, project_id: str, file_path: str):
+        """Processes a single file and adds it to the RAG store for a project."""
+        persist_directory = os.path.join(RAG_DIR, project_id)
+        if not os.path.exists(persist_directory):
+            os.makedirs(persist_directory)
+
+        # Deduplication check
+        manifest_path = os.path.join(persist_directory, "processed_files.json")
+        processed_files = []
+        if os.path.exists(manifest_path):
+            try:
+                with open(manifest_path, "r") as f:
+                    processed_files = json.load(f)
+            except Exception as e:
+                print(f"Error reading manifest: {e}")
+
+        filename = os.path.basename(file_path)
+        if filename in processed_files:
+            print(f"File {filename} already processed for project {project_id}. Skipping.")
+            return
+
+        try:
+            # Load and split the document
+            loader = PyPDFLoader(file_path)
+            docs = loader.load()
+            text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+            splits = text_splitter.split_documents(docs)
+
+            # Initialize or load vector store
+            vector_store = Chroma(
+                persist_directory=persist_directory,
+                embedding_function=self.embeddings
+            )
+
+            # Add documents to vector store
+            vector_store.add_documents(splits)
+
+            # Update manifest
+            processed_files.append(filename)
+            with open(manifest_path, "w") as f:
+                json.dump(processed_files, f)
+
+            print(f"Successfully ragged file {filename} for project {project_id}.")
+        except Exception as e:
+            print(f"Error processing file {file_path} for RAG: {e}")
+            raise e
 
     # --- Tools Internal functions ---
     def _get_inlet_stream_tool(self, feed_condition, feed_composition) -> dict:
@@ -188,6 +237,46 @@ class AIEngine:
         except Exception as e:
             print(f"Simulation Error: {e}")
             return f"Error generating simulation: {e}", None
+
+    def generate_simulation_results(self, project_data: dict):
+        """Generates simulated operating results using the LLM based on project data."""
+        prompt = f"""
+        You are a chemical process simulation expert. Based on the following project data (nodes and edges),
+        generate realistic simulated operating results for each piece of equipment identified.
+
+        Project Data:
+        {json.dumps(project_data)}
+
+        For each equipment, provide realistic values for the following parameters:
+        - Conversion (%)
+        - Temperature (C)
+        - Pressure (bar)
+        - Flowrate (mol/s)
+        - Purity (%)
+
+        Each result should have a 'Status' (Nominal, Warning, or Critical) based on the value's realism.
+
+        Return ONLY a raw JSON list of objects with this exact structure:
+        [
+            {{
+                "Equipment": "Equipment Name",
+                "Parameter": "Parameter Name",
+                "Value": "Value with unit",
+                "Status": "Status"
+            }}
+        ]
+        """
+
+        try:
+            response = self.llm.invoke([SystemMessage(content="You are a chemical process simulation expert."), HumanMessage(content=prompt)])
+            cleaned_content = clean_string(response.content)
+            results = json.loads(cleaned_content)
+            if isinstance(results, list):
+                return results
+            return []
+        except Exception as e:
+            print(f"Error generating simulation results: {e}")
+            return []
 
     # --- LangGraph Tools ---
     def get_tools(self):
