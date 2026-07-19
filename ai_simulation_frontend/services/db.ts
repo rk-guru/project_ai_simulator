@@ -54,9 +54,12 @@ export const dbService = {
       return await response.json();
   },
 
-  async uploadFile(projectId: string, file: File): Promise<string> {
+  async uploadFile(projectId: string, file: File, apiKey?: string): Promise<string> {
       const formData = new FormData();
       formData.append('file', file);
+      if (apiKey) {
+        formData.append('api_key', apiKey);
+      }
 
       const response = await fetch(`${API_URL}/projects/${projectId}/upload`, {
           method: 'POST',

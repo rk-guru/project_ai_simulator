@@ -6,7 +6,7 @@ export const generateChatResponse = async (
   history: any[],
   modelName: string,
   apiKey: string
-): Promise<string> => {
+): Promise<{ text: string; flowDiagram: any | null }> => {
   try {
     const response = await fetch(`${API_URL}/projects/${projectId}/chat`, {
       method: 'POST',
@@ -22,20 +22,22 @@ export const generateChatResponse = async (
     });
 
     if (!response.ok) {
-      // Handle missing API key on backend specific error or general failure
       if (response.status === 500) {
-           return "Backend Error: Please ensure the API_KEY environment variable is set on the Python server.";
+           return { text: "Backend Error: Please ensure the API_KEY environment variable is set on the Python server.", flowDiagram: null };
       }
       throw new Error(`Backend API error: ${response.statusText}`);
     }
 
     const data = await response.json();
-    return data.text;
+    return {
+        text: data.text,
+        flowDiagram: data.flow_diagram || null
+    };
   } catch (error) {
     console.error("Error generating content:", error);
     if (error instanceof Error) {
-      return `Connection Error: ${error.message}. Is the backend running?`;
+      return { text: `Connection Error: ${error.message}. Is the backend running?`, flowDiagram: null };
     }
-    return "An unknown error occurred while contacting the backend.";
+    return { text: "An unknown error occurred while contacting the backend.", flowDiagram: null };
   }
 };

@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import 'katex/dist/katex.min.css';
 import Sidebar from './components/Sidebar';
 import Settings from './components/Settings';
 import { Project } from './types';

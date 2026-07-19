@@ -8,7 +8,9 @@ from pydantic import BaseModel
 from sqlalchemy.orm import Session
 
 from database import init_db, get_db, Project, Message, Simulation, File as DBFile, SessionLocal
-from ai_engine import AIEngine
+from ai_engine_2 import generate_deep_agent_response
+from ai_tools import process_project_rag, process_simulation_config ,DUMMY_SIMULATION_DATA ,DUMMY_FLOW_DIAGRAM_DATA
+from langchain_core.messages import HumanMessage ,SystemMessage ,AIMessage
 import dummy_data
 
 app = FastAPI()
@@ -134,7 +136,8 @@ async def delete_project(project_id: str, db: Session = Depends(get_db)):
         shutil.rmtree(project_dir)
 
     # Delete RAG folder
-    rag_dir = os.path.join(RAG_DIR, project_id)
+    from ai_tools import get_rag_dir
+    rag_dir = get_rag_dir(project_id)
     if os.path.exists(rag_dir):
         shutil.rmtree(rag_dir)
 
@@ -181,13 +184,14 @@ async def upload_file(project_id: str, file: UploadFile = File(...), api_key: Op
     db.commit()
 
     # Automatic Ragging if api_key is provided
+    print("api_key",api_key)
     if api_key:
         try:
-            from ai_engine import AIEngine
-            ai_engine = AIEngine(api_key=api_key)
-            ai_engine.process_file_for_rag(project_id, file_path)
+            rag_result = process_project_rag(api_key=api_key, project_id=project_id, file_path=file_path)
+            return {"filename": file.filename, "message": "File uploaded and indexed successfully", "rag": rag_result}
         except Exception as e:
             print(f"Automatic ragging failed: {e}")
+            return {"filename": file.filename, "message": "File uploaded, but indexing failed", "error": str(e)}
 
     return {"filename": file.filename, "message": "File uploaded successfully"}
 
@@ -199,45 +203,33 @@ async def chat(project_id: str, request: ChatRequest, db: Session = Depends(get_
         raise HTTPException(status_code=404, detail="Project not found")
 
     files = [{"filepath": f.filepath, "filename": f.filename} for f in project.files]
+    print("model",request.api_key,"key",request.model_name)
+    print("request.message",request.message)
 
-    # 2. Initialize AI Engine with model and key from request
+    # 2. Prepare chat history
+    history = []
+    if request.chat_history:
+        for msg in request.chat_history:
+            role = "user" if msg.get('sender') == 'user' else "ai"
+            history.append({"role": role, "content": msg.get('text', '')})
+
+    history=history[:-1]
+
+    print("history",history)
+    # 3. Generate response using the Deep Agent responder
     try:
-        ai_engine = AIEngine(api_key=request.api_key, model_name=request.model_name)
-
-        # Prepare chat history for ai_engine
-        # Frontend sends messages array, we need to convert it to the format expected by run_chat
-        # Frontend messages: [{id, sender, text}, ...]
-        # ai_engine expects: [{'role': 'user', 'content': '...'}, ...]
-        history = []
-        if request.chat_history:
-            for msg in request.chat_history:
-                role = "user" if msg.get('sender') == 'user' else "ai"
-                history.append({"role": role, "content": msg.get('text', '')})
-
-        print("request.message",request.message)
-        print("history",history)
-
-        # 3. Generate response using AI Engine
-        try:
-            reply, flow_diagram = await ai_engine.run_chat(
-                project_id=project_id,
-                files=files,
-                chat=request.message,
-                chat_history=history
-            )
-        except Exception as inner_e:
-            print(f"AI Engine run_chat Error: {inner_e}")
-            # Fallback: Use the LLM directly without RAG/Graph for a basic response
-            from langchain_core.messages import HumanMessage
-            response = ai_engine.llm.invoke([HumanMessage(content=request.message)])
-            reply = response.content
-            flow_diagram = None
-
+        reply, flow_diagram = await generate_deep_agent_response(
+            api_key=request.api_key,
+            model_name=request.model_name,
+            project_id=project_id,
+            chat=request.message,
+            chat_history=history
+        )
     except Exception as e:
-        print(f"AI Engine initialization failed: {e}")
-        # If we can't initialize the AI Engine (e.g. bad API key), we can't get AI data
+        print(f"Deep Agent response failed: {e}")
         reply = f"AI Engine Error: {str(e)}"
         flow_diagram = None
+
 
     # 4. Save to DB
     user_msg = Message(project_id=project_id, role="user", content=request.message)
@@ -248,18 +240,22 @@ async def chat(project_id: str, request: ChatRequest, db: Session = Depends(get_
 
     return {
         "text": reply,
-        "flow_diagram": flow_diagram
+        "flow_diagram": DUMMY_FLOW_DIAGRAM_DATA#flow_diagram
     }
 
 @app.post("/simulation/run")
 async def run_simulation(request: SimulationRunRequest, db: Session = Depends(get_db)):
-    # Try to use AI Engine if API key is provided
+    # Process the frontend configuration using the tool
+    processed_data = process_simulation_config(request.project_data)
+
+    # Generate simulated results
     results = []
     if request.api_key:
         try:
-            from ai_engine import AIEngine
-            ai_engine = AIEngine(api_key=request.api_key)
-            results = ai_engine.generate_simulation_results(request.project_data)
+            # Here you would typically call an AI function to generate realistic results
+            # For now, we'll use dummy data or a simplified response
+            from ai_tools import DUMMY_SIMULATION_DATA
+            results = DUMMY_SIMULATION_DATA.get("results", [])
         except Exception as e:
             print(f"AI Simulation Error: {e}")
 

@@ -54,7 +54,7 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
     currentIds.forEach(id => processedMessageIds.current.add(id));
   }, [project]);
 
-  // Automatic Flowsheet Parsing
+  // Automatic Flowsheet Parsing (Kept as fallback for text-based AI responses)
   useEffect(() => {
     if (messages.length === 0) return;
     const startIndex = Math.max(0, messages.length - 3);
@@ -92,9 +92,8 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
       }
   };
 
-  const generateFlowsheetFromData = (data: any) => {
-    const equipmentList = data.Equipment_list as Record<string, string>;
-    const connections = data.Connection as any[];
+  const generateFlowsheetFromStructuredData = (data: any[]) => {
+    if (!Array.isArray(data)) return;
 
     const newNodes: FlowsheetNode[] = [];
     const newEdges: FlowsheetEdge[] = [];
@@ -108,24 +107,30 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
         return match || EquipmentType.Tank;
     };
 
-    // Create Nodes
-    Object.entries(equipmentList).forEach(([name, typeStr]) => {
-        const type = findEquipmentType(typeStr);
-        const connectionData = connections.find(c => c.equipment === name);
-        const params = connectionData?.Param || {};
-        
+    // 1. Create Nodes
+    data.forEach(item => {
+        const type = findEquipmentType(item.equipment);
+        const props = item.params || {};
+
         const properties: Record<string, any> = {};
-        Object.entries(params).forEach(([key, value]) => {
+        Object.entries(props).forEach(([key, value]) => {
             properties[mapParamKey(key)] = value;
         });
 
-        newNodes.push({ id: name, type, name, x: 0, y: 0, properties });
+        newNodes.push({
+            id: item.equipment_id,
+            type,
+            name: item.equipment_id,
+            x: 0,
+            y: 0,
+            properties
+        });
     });
 
-    // Create Edges
-    connections.forEach((conn) => {
-        const fromId = conn.equipment;
-        const outlets = Array.isArray(conn.outlet) ? conn.outlet : (conn.outlet ? [conn.outlet] : []);
+    // 2. Create Edges
+    data.forEach(item => {
+        const fromId = item.equipment_id;
+        const outlets = Array.isArray(item.outlets) ? item.outlets : [];
         outlets.forEach((toId: string) => {
             if (newNodes.find(n => n.id === fromId) && newNodes.find(n => n.id === toId)) {
                 newEdges.push({ id: `edge-${fromId}-${toId}`, from: fromId, to: toId });
@@ -133,14 +138,14 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
         });
     });
 
-    // Auto Layout
+    // 3. Auto Layout (Layered)
     const incomingEdgeCounts: Record<string, number> = {};
     newNodes.forEach(n => incomingEdgeCounts[n.id] = 0);
     newEdges.forEach(e => { if (incomingEdgeCounts[e.to] !== undefined) incomingEdgeCounts[e.to]++; });
 
     const levels: Record<string, number> = {};
     const queue: {id: string, level: number}[] = [];
-    
+
     newNodes.forEach(n => {
         if (incomingEdgeCounts[n.id] === 0) {
             queue.push({ id: n.id, level: 0 });
@@ -170,21 +175,18 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
 
     newNodes.forEach(n => { if (levels[n.id] === undefined) levels[n.id] = 0; });
     const nodesPerLevel: Record<number, number> = {};
-    
+
     const layoutedNodes = newNodes.map(node => {
         const level = levels[node.id];
         const indexInLevel = nodesPerLevel[level] || 0;
         nodesPerLevel[level] = indexInLevel + 1;
-        return { ...node, x: 50 + level * 200, y: 50 + indexInLevel * 150 };
+        return { ...node, x: 50 + level * 250, y: 50 + indexInLevel * 150 };
     });
 
     setNodes(layoutedNodes);
     setEdges(newEdges);
     setActiveTab('flow-diagram');
-    setMessages(prev => {
-        if (prev[prev.length - 1]?.text === 'Flowsheet generated successfully.') return prev;
-        return [...prev, { id: 'sys-' + Date.now(), sender: 'ai', text: 'Flowsheet generated successfully.' }];
-    });
+    setMessages(prev => [...prev, { id: 'sys-flow-' + Date.now(), sender: 'ai', text: 'Flowsheet generated successfully.' }]);
   };
 
   const handleSave = () => {
@@ -224,7 +226,12 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
   const renderTabContent = () => {
     switch (activeTab) {
       case 'chat':
-        return <Chatbot projectId={project.id} messages={messages} setMessages={setMessages} />;
+        return <Chatbot
+            projectId={project.id}
+            messages={messages}
+            setMessages={setMessages}
+            onFlowDiagramReceived={generateFlowsheetFromStructuredData}
+        />;
       case 'flow-diagram':
         return <FlowDiagram nodes={nodes} setNodes={setNodes} edges={edges} setEdges={setEdges} onRun={handleRunSimulation} />;
       case 'result-table':

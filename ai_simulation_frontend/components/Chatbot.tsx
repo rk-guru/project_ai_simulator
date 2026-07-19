@@ -2,6 +2,9 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage } from '../types';
 import { generateChatResponse } from '../services/geminiService';
 import { dbService } from '../services/db';
+import ReactMarkdown from 'react-markdown';
+import remarkMath from 'remark-math';
+import rehypeKatex from 'rehype-katex';
 import SendIcon from './icons/SendIcon';
 import UploadIcon from './icons/UploadIcon';
 
@@ -9,9 +12,10 @@ interface ChatbotProps {
     projectId: string;
     messages: ChatMessage[];
     setMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+    onFlowDiagramReceived?: (diagramData: any) => void;
 }
 
-const Chatbot: React.FC<ChatbotProps> = ({ projectId, messages, setMessages }) => {
+const Chatbot: React.FC<ChatbotProps> = ({ projectId, messages, setMessages, onFlowDiagramReceived }) => {
   const [input, setInput] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null);
@@ -35,8 +39,10 @@ const Chatbot: React.FC<ChatbotProps> = ({ projectId, messages, setMessages }) =
     if (file) {
       setIsUploading(true);
       try {
+          // Get API key from localStorage
+          const apiKey = localStorage.getItem('apiKey') || '';
           // Upload to backend linked to project ID
-          await dbService.uploadFile(projectId, file);
+          await dbService.uploadFile(projectId, file, apiKey);
           setUploadedFileName(file.name);
           
           // Add system message about upload
@@ -78,7 +84,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ projectId, messages, setMessages }) =
     const apiKey = localStorage.getItem('apiKey') || '';
     const currentHistory = [...messages, userMessage];
 
-    const aiResponseText = await generateChatResponse(
+    const response = await generateChatResponse(
       projectId,
       input,
       currentHistory,
@@ -86,10 +92,14 @@ const Chatbot: React.FC<ChatbotProps> = ({ projectId, messages, setMessages }) =
       apiKey
     );
 
+    if (response.flowDiagram) {
+        onFlowDiagramReceived?.(response.flowDiagram);
+    }
+
     const aiMessage: ChatMessage = {
       id: (Date.now() + 1).toString(),
       sender: 'ai',
-      text: aiResponseText,
+      text: response.text,
     };
     
     setMessages(prev => [...prev.slice(0, -1), aiMessage]);
@@ -134,7 +144,14 @@ const Chatbot: React.FC<ChatbotProps> = ({ projectId, messages, setMessages }) =
                     <span className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{animationDelay: '0.4s'}}></span>
                  </div>
               ) : (
-                <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
+                <div className="text-sm prose prose-invert max-w-none">
+                  <ReactMarkdown
+                    remarkPlugins={[remarkMath]}
+                    rehypePlugins={[rehypeKatex]}
+                  >
+                    {msg.text}
+                  </ReactMarkdown>
+                </div>
               )}
             </div>
           </div>

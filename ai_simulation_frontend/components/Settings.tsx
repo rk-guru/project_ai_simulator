@@ -37,6 +37,7 @@ const Settings: React.FC<SettingsProps> = ({ onBack }) => {
       <div className="space-y-4 max-w-md">
         <div className="flex flex-col">
           <label className="block text-sm font-medium text-gray-400 mb-1">Model Name</label>
+          <p className="text-xs text-gray-500 mb-2">Use Google AI models. For free model use <code className="bg-slate-700 px-1 rounded text-indigo-300">gemma-4-31b-it</code></p>
           <div className="flex space-x-2">
             <input
               type="text"
@@ -55,6 +56,7 @@ const Settings: React.FC<SettingsProps> = ({ onBack }) => {
         </div>
         <div className="flex flex-col">
           <label className="block text-sm font-medium text-gray-400 mb-1">Model API Key</label>
+          <p className="text-xs text-gray-500 mb-2">Use Google free API for trials</p>
           <div className="flex space-x-2">
             <input
               type="password"
