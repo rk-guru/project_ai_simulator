@@ -6,6 +6,7 @@ from langchain_community.vectorstores import Chroma
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_core.documents import Document
 from langchain.tools import tool
+import pandas as pd
 
 RAG_DIR = "RAG"
 
@@ -171,3 +172,8 @@ def process_simulation_config(config_json: Dict[str, Any]):
 
     print(f"Processed simulation configuration for {len(nodes)} units.")
     return processed_config
+
+@tool
+def compounds_list():
+    "this tool will return all the available chemical in the db , it will return the list of chemical names"
+    data=pd.read_csv("")
