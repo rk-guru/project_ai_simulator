@@ -1,5 +1,6 @@
 import os
 import uuid
+import json
 from typing import List, Dict, Any, Optional
 from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from langchain_community.vectorstores import Chroma
@@ -127,6 +128,50 @@ def process_project_rag(api_key: str, project_id: str, file_path: str):
         traceback.print_exc()
         raise e
 
+
+def get_formatted_flow_diagram(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Transforms raw nodes and edges from the frontend flow diagram
+    into the requested structured format.
+    """
+    formatted_data = []
+
+    for node in nodes:
+        node_id = node.get("id")
+        # Find all outlets for this equipment
+        outlets = [edge.get("to") for edge in edges if edge.get("from") == node_id]
+
+        formatted_data.append({
+            "equipment": node.get("type"),
+            "equipment_id": node.get("name") or node_id,
+            "outlets": outlets,
+            "params": node.get("properties", {})
+        })
+
+    return formatted_data
+
+def get_flow_diagram_from_db(project_id: str) -> List[Dict[str, Any]]:
+    """
+    Fetches the latest flow diagram configuration from the database
+    and returns it in the formatted structure.
+    """
+    try:
+        from database import SessionLocal, Simulation
+        db = SessionLocal()
+        try:
+            sim = db.query(Simulation).filter(Simulation.project_id == project_id).order_by(Simulation.id.desc()).first()
+            if not sim or not sim.config_json:
+                return []
+
+            config = json.loads(sim.config_json)
+            nodes = config.get("nodes", [])
+            edges = config.get("edges", [])
+            return get_formatted_flow_diagram(nodes, edges)
+        finally:
+            db.close()
+    except Exception as e:
+        print(f"Error fetching flow diagram from DB: {e}")
+        return []
 
 # @tool
 def retrieve_rag_documents(api_key: str, project_id: str, query: str, k: int = 5):

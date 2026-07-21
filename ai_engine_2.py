@@ -1,5 +1,6 @@
 import os
 import uuid
+import json
 from typing import List, Dict, Any, Optional
 from deepagents import create_deep_agent
 from deepagents.backends import StateBackend
@@ -7,6 +8,7 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.messages import HumanMessage, AIMessage
 from langchain.tools import tool
 from ai_tools import process_project_rag, retrieve_rag_documents, DUMMY_FLOW_DIAGRAM_DATA
+import pandas as pd
 
 async def generate_deep_agent_response(api_key: str, model_name: str, project_id: str, chat: str, chat_history: List[Dict[str, Any]] = None):
     """
@@ -15,6 +17,7 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
     """
     # Shared backend for the agent and its tools in this session
     backend = StateBackend()
+    print("project_id",project_id)
 
     # Tools list
     tools = []
@@ -34,21 +37,33 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         print("retrieved_docs",retrieved_docs)
         if not retrieved_docs:
             return "No relevant information found in uploaded files."
-
-        # batch_id = uuid.uuid4().hex[:8]
-        # uploads = []
-        # saved_paths = []
-        #
-        # for index, doc in enumerate(retrieved_docs, start=1):
-        #     path = f"/retrieved/{batch_id}/chunk_{index}.md"
-        #     content = f"# Source: {doc.metadata.get('source', 'unknown')}\n\n{doc.page_content}"
-        #     uploads.append((path, content.encode("utf-8")))
-        #     saved_paths.append(path)
-        #
-        # backend.upload_files(uploads)
         return retrieved_docs#f"Saved {len(saved_paths)} chunks:\n" + "\n".join(saved_paths)
 
-    tools.append(search_project_files)
+    @tool
+    def compounds_list() -> list:
+        """this tool will return the list of all chemicals available in the db
+        which can be used in the simualtions
+
+        Returns:
+            list of all chemicals available in the db
+            """
+        data = pd.read_csv("Open_source_db2.csv")
+        return (data.iloc[:,0]).tolist()
+
+    @tool(parse_docstring=True)
+    def get_flow_diagram() -> str:
+        """This tool fetches the current flow diagram of the process.
+        It returns a list of equipment with their IDs, outlets, and parameters.
+
+        Returns:
+            A JSON string representing the flow diagram.
+        """
+        from ai_tools import get_flow_diagram_from_db
+        diagram_data = get_flow_diagram_from_db(project_id)
+        return str(json.dumps(diagram_data, indent=2))
+
+    tools=[search_project_files , compounds_list, get_flow_diagram]
+
 
     # RAG Status
     from ai_tools import get_rag_dir

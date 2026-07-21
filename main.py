@@ -1,6 +1,7 @@
 import os
 import shutil
 import json
+import csv
 from typing import List, Dict, Any, Optional
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Depends
 from fastapi.middleware.cors import CORSMiddleware
@@ -9,7 +10,7 @@ from sqlalchemy.orm import Session
 
 from database import init_db, get_db, Project, Message, Simulation, File as DBFile, SessionLocal
 from ai_engine_2 import generate_deep_agent_response
-from ai_tools import process_project_rag, process_simulation_config ,DUMMY_SIMULATION_DATA ,DUMMY_FLOW_DIAGRAM_DATA
+from ai_tools import process_project_rag, process_simulation_config ,DUMMY_SIMULATION_DATA ,DUMMY_FLOW_DIAGRAM_DATA, get_formatted_flow_diagram
 from langchain_core.messages import HumanMessage ,SystemMessage ,AIMessage
 import dummy_data
 
@@ -145,6 +146,23 @@ async def delete_project(project_id: str, db: Session = Depends(get_db)):
     db.commit()
     return {"message": "Project deleted successfully"}
 
+@app.get("/chemicals")
+async def get_chemicals():
+    """Fetch the list of chemicals from Open_source_db2.csv"""
+    try:
+        chemicals = []
+        with open("Open_source_db2.csv", mode="r", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                if row.get("Name"):
+                    chemicals.append(row["Name"])
+
+        # Return unique chemicals sorted alphabetically
+        return sorted(list(set(chemicals)))
+    except Exception as e:
+        print(f"Error reading chemicals CSV: {e}")
+        raise HTTPException(status_code=500, detail=f"Error reading chemicals database: {str(e)}")
+
 @app.post("/projects/{project_id}/generate-report")
 async def generate_report(project_id: str, db: Session = Depends(get_db)):
     project = db.query(Project).filter(Project.id == project_id).first()
@@ -242,6 +260,24 @@ async def chat(project_id: str, request: ChatRequest, db: Session = Depends(get_
         "text": reply,
         "flow_diagram": DUMMY_FLOW_DIAGRAM_DATA#flow_diagram
     }
+
+@app.get("/projects/{project_id}/flow-diagram")
+async def get_flow_diagram(project_id: str, db: Session = Depends(get_db)):
+    """Fetch the current flow diagram configuration for a project"""
+    # Get the latest simulation record for this project
+    sim = db.query(Simulation).filter(Simulation.project_id == project_id).order_by(Simulation.id.desc()).first()
+
+    if not sim or not sim.config_json:
+        return {"status": "success", "flow_diagram": []}
+
+    try:
+        config = json.loads(sim.config_json)
+        nodes = config.get("nodes", [])
+        edges = config.get("edges", [])
+        formatted_diagram = get_formatted_flow_diagram(nodes, edges)
+        return {"status": "success", "flow_diagram": formatted_diagram}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing flow diagram: {str(e)}")
 
 @app.post("/simulation/run")
 async def run_simulation(request: SimulationRunRequest, db: Session = Depends(get_db)):

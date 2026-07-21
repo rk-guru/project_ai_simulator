@@ -20,7 +20,7 @@ export enum EquipmentType {
   // Streams
   Feed = 'Feed',
   Product = 'Product',
-  
+
   // Basic Units
   Tank = 'Tank',
   Pump = 'Pump',
@@ -55,4 +55,17 @@ export interface FlowsheetEdge {
   id: string;
   from: string;
   to: string;
+  port?: string; // e.g., 'hot-in', 'cold-in', 'hot-out', 'cold-out', 'vapor', 'liquid'
+}
+
+export interface ReactionComponent {
+  compound: string;
+  stoichiometry: number;
+}
+
+export interface Reaction {
+  reactants: ReactionComponent[];
+  products: ReactionComponent[];
+  conversion: number;
+  notes: string;
 }

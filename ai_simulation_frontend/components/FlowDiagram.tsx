@@ -25,7 +25,7 @@ const PALETTE_GROUPS = [
 ];
 
 
-const NODE_DIMS = { width: 70, height: 80, iconContainerHeight: 56 };
+const NODE_DIMS = { width: 100, height: 80, iconContainerHeight: 56 };
 
 const getDefaultProperties = (type: EquipmentType): Record<string, any> => {
     switch (type) {
@@ -160,10 +160,10 @@ const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEd
     setNodes(prev => [...prev, newNode]);
   };
   
-  const addEdge = (from: string, to: string) => {
+  const addEdge = (from: string, to: string, port?: string) => {
      if (from === to) return;
-     const newEdge: FlowsheetEdge = { id: `edge-${from}-${to}`, from, to };
-      if (!edges.some(e => (e.from === newEdge.from && e.to === newEdge.to))) {
+     const newEdge: FlowsheetEdge = { id: `edge-${from}-${to}-${port || 'default'}`, from, to, port };
+      if (!edges.some(e => (e.from === newEdge.from && e.to === newEdge.to && e.port === newEdge.port))) {
         setEdges(prev => [...prev, newEdge]);
       }
   }
@@ -307,7 +307,7 @@ const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEd
               <div style={{height: NODE_DIMS.iconContainerHeight}} className="w-full flex items-center justify-center">
                   <EquipmentIcon type={node.type} className="w-full h-full text-gray-200" style={{ cursor: 'grab' }} />
               </div>
-              <span className="text-xs text-center text-gray-300 w-full truncate px-1">{node.name}</span>
+              <span className="text-xs text-center text-gray-300 w-full px-1 leading-tight">{node.name}</span>
             </div>
           ))}
           {nodes.length === 0 && (
