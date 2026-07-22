@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useCallback, useMemo, useEffect } from 'react';
 import { EquipmentType, FlowsheetNode, FlowsheetEdge } from '../types';
 import { EquipmentIcon } from './icons/EquipmentIcons';
@@ -23,7 +22,6 @@ const PALETTE_GROUPS = [
         types: [EquipmentType.Flash, EquipmentType.DistillationColumn, EquipmentType.Reactor]
     }
 ];
-
 
 const NODE_DIMS = { width: 100, height: 80, iconContainerHeight: 56 };
 
@@ -100,16 +98,19 @@ interface FlowDiagramProps {
 
 const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEdges, onRun }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
+  const [viewState, setViewState] = useState({ panX: 0, panY: 0, zoom: 1 });
+  const [isPanning, setIsPanning] = useState(false);
+  const [panStart, setPanStart] = useState({ x: 0, y: 0 });
 
   const equipmentCounters = useRef<Record<string, number>>(
     Object.values(EquipmentType).reduce((acc, curr) => ({ ...acc, [curr]: 0 }), {})
   );
-  
+
   const canvasRef = useRef<HTMLDivElement>(null);
   const [draggingInfo, setDraggingInfo] = useState<{ id: string; offsetX: number; offsetY: number } | null>(null);
 
   const selectedNode = useMemo(() => nodes.find(n => n.id === selectedNodeId), [nodes, selectedNodeId]);
-  
+
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
         if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId) {
@@ -143,8 +144,9 @@ const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEd
     if (!type) return;
 
     const rect = canvasRef.current.getBoundingClientRect();
-    const x = e.clientX - rect.left - NODE_DIMS.width / 2;
-    const y = e.clientY - rect.top - NODE_DIMS.height / 2;
+    // Account for current pan and zoom when placing a new node
+    const x = (e.clientX - rect.left - NODE_DIMS.width / 2 - viewState.panX) / viewState.zoom;
+    const y = (e.clientY - rect.top - NODE_DIMS.height / 2 - viewState.panY) / viewState.zoom;
 
     equipmentCounters.current[type]++;
     const newName = `${type}-${equipmentCounters.current[type]}`;
@@ -159,7 +161,7 @@ const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEd
     };
     setNodes(prev => [...prev, newNode]);
   };
-  
+
   const addEdge = (from: string, to: string, port?: string) => {
      if (from === to) return;
      const newEdge: FlowsheetEdge = { id: `edge-${from}-${to}-${port || 'default'}`, from, to, port };
@@ -169,48 +171,92 @@ const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEd
   }
 
   const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
-    if (e.button !== 0) return; 
-    
+    if (e.button !== 0) return;
+
     setSelectedNodeId(nodeId);
 
     const node = nodes.find(n => n.id === nodeId);
     if (!node || !canvasRef.current) return;
-    
+
     const canvasRect = canvasRef.current.getBoundingClientRect();
-    const offsetX = e.clientX - canvasRect.left - node.x;
-    const offsetY = e.clientY - canvasRect.top - node.y;
-    
+    // Adjust offset based on zoom
+    const offsetX = (e.clientX - canvasRect.left - node.x * viewState.zoom) / viewState.zoom;
+    const offsetY = (e.clientY - canvasRect.top - node.y * viewState.zoom) / viewState.zoom;
+
     setDraggingInfo({ id: nodeId, offsetX, offsetY });
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
       if (draggingInfo && canvasRef.current) {
          const canvasRect = canvasRef.current.getBoundingClientRect();
-         const x = e.clientX - canvasRect.left - draggingInfo.offsetX;
-         const y = e.clientY - canvasRect.top - draggingInfo.offsetY;
-         
-         setNodes(prevNodes => 
-             prevNodes.map(n => 
+         const x = (e.clientX - canvasRect.left - draggingInfo.offsetX * viewState.zoom - viewState.panX) / viewState.zoom;
+         const y = (e.clientY - canvasRect.top - draggingInfo.offsetY * viewState.zoom - viewState.panY) / viewState.zoom;
+
+         setNodes(prevNodes =>
+             prevNodes.map(n =>
                  n.id === draggingInfo.id ? { ...n, x, y } : n
              )
          );
+      }
+
+      if (isPanning) {
+          setViewState(prev => ({
+              ...prev,
+              panX: prev.panX + (e.clientX - panStart.x),
+              panY: prev.panY + (e.clientY - panStart.y)
+          }));
+          setPanStart({ x: e.clientX, y: e.clientY });
       }
   };
 
   const handleMouseUp = () => {
       setDraggingInfo(null);
+      setIsPanning(false);
   };
 
   const handleCanvasMouseDown = (e: React.MouseEvent) => {
     if(e.target === e.currentTarget) {
         setSelectedNodeId(null);
     }
+
+    if (e.button === 0 && !draggingInfo) {
+        setIsPanning(true);
+        setPanStart({ x: e.clientX, y: e.clientY });
+    }
+  }
+
+  const handleWheel = (e: React.WheelEvent) => {
+      e.preventDefault();
+      const zoomSpeed = 0.0005;
+      const delta = -e.deltaY;
+      const newZoom = Math.min(Math.max(0.2, viewState.zoom + delta * zoomSpeed), 3);
+
+      // Zoom towards cursor
+      const rect = canvasRef.current?.getBoundingClientRect();
+      if (!rect) return;
+
+      const mouseX = e.clientX - rect.left;
+      const mouseY = e.clientY - rect.top;
+
+      const worldX = (mouseX - viewState.panX) / viewState.zoom;
+      const worldY = (mouseY - rect.top - viewState.panY) / viewState.zoom; // fix typo in logic
+
+      setViewState(prev => ({
+          ...prev,
+          zoom: newZoom,
+          panX: mouseX - worldX * newZoom,
+          panY: mouseY - worldY * newZoom
+      }));
+  }
+
+  const resetView = () => {
+      setViewState({ panX: 0, panY: 0, zoom: 1 });
   }
 
   const handleNodeDoubleClick = (nodeId: string) => {
     setSelectedNodeId(nodeId);
   };
-  
+
   const handleNodeUpdate = (updatedNode: FlowsheetNode) => {
     setNodes(prev => prev.map(n => n.id === updatedNode.id ? updatedNode : n));
   };
@@ -222,7 +268,7 @@ const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEd
 
   return (
     <div className="flex h-full min-h-[500px] gap-4">
-      <div className="flex-1 flex gap-4">
+      <div className="flex-1 flex gap-4 overflow-hidden">
         {/* Palette */}
         <div className="w-40 bg-slate-800/50 rounded-lg p-4 flex flex-col space-y-4 overflow-y-auto">
             {PALETTE_GROUPS.map(group => (
@@ -246,70 +292,91 @@ const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEd
         </div>
 
         {/* Canvas */}
-        <div 
-          className="flex-1 bg-slate-800/50 rounded-lg relative overflow-hidden" 
-          ref={canvasRef} 
-          onDragOver={handleDragOver} 
+        <div
+          className="flex-1 bg-slate-800/50 rounded-lg relative overflow-hidden"
+          ref={canvasRef}
+          onDragOver={handleDragOver}
           onDrop={handleDrop}
           onMouseMove={handleMouseMove}
           onMouseUp={handleMouseUp}
           onMouseDown={handleCanvasMouseDown}
+          onWheel={handleWheel}
+          onDoubleClick={resetView}
           onMouseLeave={() => {
             setDraggingInfo(null);
+            setIsPanning(false);
           }}
-          style={{ cursor: draggingInfo ? 'grabbing' : 'default' }}
+          style={{ cursor: draggingInfo ? 'grabbing' : (isPanning ? 'grabbing' : 'crosshair') }}
         >
-          {/* Run Button Overlay */}
-          <button
-              onClick={onRun}
-              className="absolute top-4 right-4 flex items-center px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-sm font-semibold rounded-md shadow-lg transition-colors z-10"
+          {/* Controls Overlay */}
+          <div className="absolute top-4 right-4 flex flex-col gap-2 z-10">
+              <button
+                  onClick={onRun}
+                  className="flex items-center px-4 py-2 bg-green-600 hover:bg-green-500 text-white text-sm font-semibold rounded-md shadow-lg transition-colors"
+              >
+                  <PlayIcon className="w-4 h-4 mr-2" />
+                  Run Simulation
+              </button>
+          </div>
+
+          <div
+            style={{
+                transform: `translate(${viewState.panX}px, ${viewState.panY}px) scale(${viewState.zoom})`,
+                transformOrigin: '0 0',
+                transition: isPanning ? 'none' : 'transform 0.1s ease-out'
+            }}
+            className="absolute inset-0 pointer-events-none"
           >
-              <PlayIcon className="w-4 h-4 mr-2" />
-              Run Simulation
-          </button>
+            <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
+              <defs>
+                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
+                  <polygon points="0 0, 10 3.5, 0 7" fill="#4f46e5" />
+                </marker>
+              </defs>
+              {edges.map(edge => {
+                  const fromNode = nodes.find(n => n.id === edge.from);
+                  const toNode = nodes.find(n => n.id === edge.to);
+                  if (!fromNode || !toNode) return null;
 
-          <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
-            <defs>
-              <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
-                <polygon points="0 0, 10 3.5, 0 7" fill="#4f46e5" />
-              </marker>
-            </defs>
-            {edges.map(edge => {
-                const fromNode = nodes.find(n => n.id === edge.from);
-                const toNode = nodes.find(n => n.id === edge.to);
-                if (!fromNode || !toNode) return null;
+                  const pathD = getOrthogonalPathD(fromNode, toNode);
+                  return (
+                    <path
+                      key={edge.id}
+                      d={pathD}
+                      stroke="#4f46e5"
+                      strokeWidth={`${2 / viewState.zoom}px`}
+                      fill="none"
+                      markerEnd="url(#arrowhead)"
+                    />
+                  )
+              })}
+            </svg>
 
-                const pathD = getOrthogonalPathD(fromNode, toNode);
-                return (
-                  <path 
-                    key={edge.id} 
-                    d={pathD}
-                    stroke="#4f46e5" 
-                    strokeWidth="2"
-                    fill="none" 
-                    markerEnd="url(#arrowhead)" 
-                  />
-                )
-            })}
-          </svg>
-
-          {nodes.map(node => (
-            <div
-              key={node.id}
-              style={{ left: node.x, top: node.y, width: NODE_DIMS.width, height: NODE_DIMS.height }}
-              className={`absolute flex flex-col items-center justify-start p-1 rounded-md border-2 transition-colors
-                ${selectedNodeId === node.id ? 'border-indigo-500' : 'border-transparent'}
-                ${draggingInfo?.id === node.id ? '' : 'hover:border-indigo-500/50'}
-              `}
-              onMouseDown={(e) => handleNodeMouseDown(e, node.id)}
-              onDoubleClick={() => handleNodeDoubleClick(node.id)}
-            >
-              <div style={{height: NODE_DIMS.iconContainerHeight}} className="w-full flex items-center justify-center">
-                  <EquipmentIcon type={node.type} className="w-full h-full text-gray-200" style={{ cursor: 'grab' }} />
+            {nodes.map(node => (
+              <div
+                key={node.id}
+                style={{
+                    left: node.x,
+                    top: node.y,
+                    width: NODE_DIMS.width,
+                    height: NODE_DIMS.height,
+                    pointerEvents: 'auto'
+                }}
+                className={`absolute flex flex-col items-center justify-start p-1 rounded-md border-2 transition-colors
+                  ${selectedNodeId === node.id ? 'border-indigo-500' : 'border-transparent'}
+                  ${draggingInfo?.id === node.id ? '' : 'hover:border-indigo-500/50'}
+                `}
+                onMouseDown={(e) => handleNodeMouseDown(e, node.id)}
+                onDoubleClick={() => handleNodeDoubleClick(node.id)}
+              >
+                <div style={{height: NODE_DIMS.iconContainerHeight}} className="w-full flex items-center justify-center">
+                    <EquipmentIcon type={node.type} className="w-full h-full text-gray-200" style={{ cursor: 'grab' }} />
+                </div>
+                <span className="text-xs text-center text-gray-300 w-full px-1 leading-tight">{node.name}</span>
               </div>
-              <span className="text-xs text-center text-gray-300 w-full px-1 leading-tight">{node.name}</span>
-            </div>
-          ))}
+            ))}
+          </div>
+
           {nodes.length === 0 && (
               <div className="w-full h-full flex items-center justify-center text-gray-500 pointer-events-none">
                   <p>Drag equipment from the left panel to build your diagram</p>

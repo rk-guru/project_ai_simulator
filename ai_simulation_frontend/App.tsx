@@ -13,6 +13,9 @@ const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [isBackendOffline, setIsBackendOffline] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+
+  // Load projects from DB on mount
 
   // Load projects from DB on mount
   useEffect(() => {
@@ -123,6 +126,8 @@ const App: React.FC = () => {
         createNewProject={createNewProject}
         deleteProject={deleteProject}
         openSettings={() => setShowSettings(true)}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
             {showSettings ? (
         <Settings onBack={() => setShowSettings(false)} />

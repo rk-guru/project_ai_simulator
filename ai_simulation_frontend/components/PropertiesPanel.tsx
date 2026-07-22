@@ -417,17 +417,17 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
     switch(type) {
         case EquipmentType.Feed:
             params.push(<PropertyInput key="temp" label="Temperature" name="temperature" unit="K" value={properties.temperature} onChange={handlePropertyChange} />);
-            params.push(<PropertyInput key="press" label="Pressure" name="pressure" unit="bar" value={properties.pressure} onChange={handlePropertyChange} />);
-            params.push(<PropertyInput key="flow" label="Flow Rate" name="flowRate" unit="kmol/hr" value={properties.flowRate} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="press" label="Pressure" name="pressure" unit="Pa" value={properties.pressure} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="flow" label="Flow Rate" name="flowRate" unit="mol/s" value={properties.flowRate} onChange={handlePropertyChange} />);
             break;
         case EquipmentType.Tank:
         case EquipmentType.Flash:
             params.push(<PropertyInput key="temp" label="Temperature" name="temperature" unit="K" value={properties.temperature} onChange={handlePropertyChange} />);
-            params.push(<PropertyInput key="press" label="Pressure" name="pressure" unit="bar" value={properties.pressure} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="press" label="Pressure" name="pressure" unit="Pa" value={properties.pressure} onChange={handlePropertyChange} />);
             break;
         case EquipmentType.Reactor:
             params.push(<PropertyInput key="temp" label="Temperature" name="temperature" unit="K" value={properties.temperature} onChange={handlePropertyChange} />);
-            params.push(<PropertyInput key="press" label="Pressure" name="pressure" unit="bar" value={properties.pressure} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="press" label="Pressure" name="pressure" unit="Pa" value={properties.pressure} onChange={handlePropertyChange} />);
             params.push(renderStoichiometryTable('Reactants', 'reactants'));
             params.push(renderStoichiometryTable('Products', 'products'));
             params.push(<PropertyInput key="conv" label="Conversion" name="conversion" unit="%" value={properties.conversion} onChange={handlePropertyChange} />);
@@ -435,7 +435,7 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
         case EquipmentType.Pump:
         case EquipmentType.Compressor:
         case EquipmentType.Expander:
-            params.push(<PropertyInput key="out-press" label="Output Pressure" name="outletPressure" unit="bar" value={properties.outletPressure} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="out-press" label="Output Pressure" name="outletPressure" unit="Pa" value={properties.outletPressure} onChange={handlePropertyChange} />);
             break;
         case EquipmentType.Heater:
         case EquipmentType.Cooler:
@@ -452,7 +452,7 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                     </select>
                 </div>
             );
-            params.push(<PropertyInput key="dist-press" label="Pressure" name="pressure" unit="bar" value={properties.pressure} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="dist-press" label="Pressure" name="pressure" unit="Pa" value={properties.pressure} onChange={handlePropertyChange} />);
             params.push(<PropertyInput key="dist-temp" label="Temperature" name="temperature" unit="K" value={properties.temperature} onChange={handlePropertyChange} />);
             params.push(<PropertyInput key="reflux" label="Reflux Ratio" name="refluxRatio" value={properties.refluxRatio} onChange={handlePropertyChange} />);
             break;

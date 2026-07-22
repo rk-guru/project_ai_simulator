@@ -13,6 +13,19 @@ Do not answer from memory when file evidence is required. Search first.
 
 
 """
+
+def flowdiagram_prompt(reference_structure):
+    prompt=f"""consider you are a chemical engineering assistant and you are generating a simulation diagram for a process plant .
+    use the reference structure as the base for the return structure where the model should follow for returning
+    create id for all equipment with similar structure that it should use the name with numer like Heater_1 , Heater_2
+    this is used for equipment id and to specify the outlet connections as well 
+    follow exactly what the input provide and generate json with the existing equipment and compounds 
+    use the same name for compounds exactly as input
+    if recycle is present in the process doesnt recycle the stream instead leave it as product steam 
+    reference structure:{reference_structure}
+    make sure to return exactly in the reference structure without any symbol or additional comments or message
+    """
+    return prompt
 #
 # from ai_tools import get_flow_diagram_from_db
 # import json

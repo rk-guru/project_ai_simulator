@@ -15,7 +15,17 @@ interface MainContentProps {
 
 type Tab = 'chat' | 'flow-diagram' | 'result-table';
 
+const PORT_ORDER: Record<string, string[]> = {
+    [EquipmentType.HeatExchanger]: ['hot-out', 'cold-out'],
+    [EquipmentType.Flash]: ['vapor', 'liquid'],
+    [EquipmentType.DistillationColumn]: ['distillate', 'bottoms'],
+    [EquipmentType.Tank]: ['out1', 'out2'],
+    [EquipmentType.Reactor]: ['out1', 'out2'],
+    'default': ['out']
+};
+
 // Helper to map JSON parameter keys
+
 const mapParamKey = (key: string): string => {
     const map: Record<string, string> = {
         'Temperature': 'temperature',
@@ -131,9 +141,13 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
     data.forEach(item => {
         const fromId = item.equipment_id;
         const outlets = Array.isArray(item.outlets) ? item.outlets : [];
-        outlets.forEach((toId: string) => {
+        const type = findEquipmentType(item.equipment);
+        const ports = PORT_ORDER[type] || PORT_ORDER['default'];
+
+        outlets.forEach((toId: string, index: number) => {
             if (newNodes.find(n => n.id === fromId) && newNodes.find(n => n.id === toId)) {
-                newEdges.push({ id: `edge-${fromId}-${toId}`, from: fromId, to: toId });
+                const port = ports[index] || `out${index + 1}`;
+                newEdges.push({ id: `edge-${fromId}-${toId}`, from: fromId, to: toId, port });
             }
         });
     });

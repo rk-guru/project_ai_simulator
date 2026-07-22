@@ -5,8 +5,10 @@ from typing import List, Dict, Any, Optional
 from deepagents import create_deep_agent
 from deepagents.backends import StateBackend
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.messages import HumanMessage, AIMessage
+from langchain.messages import HumanMessage, AIMessage , SystemMessage
 from langchain.tools import tool
+from typing import List, Dict, Any
+from langchain_core.output_parsers import JsonOutputParser
 from ai_tools import process_project_rag, retrieve_rag_documents, DUMMY_FLOW_DIAGRAM_DATA
 import pandas as pd
 
@@ -61,6 +63,37 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         from ai_tools import get_flow_diagram_from_db
         diagram_data = get_flow_diagram_from_db(project_id)
         return str(json.dumps(diagram_data, indent=2))
+
+    @tool(parse_docstring=True)
+    def get_pfd_structure(process_data : str) -> str:
+        """This tool generate the json structure which is needed for generating the process , this is used when user tell to generate PFD for the process
+        process_data : the input data have the complete set of information from the chat , rag and other sources which is needed to generate the Pfd for the process
+        this should include list of all chemicals used in the process , all the equipments used in the process
+        step by step instruction of the process with equipment conditions ( make sure all the data provided should come from proper sources
+        if any values is not specified it can be left
+
+        Returns:
+            A JSON string representing the flow diagram.
+        """
+        from equipment_reference import EQUIPMENT_FRONTEND_SCHEMA_JSON
+        from prompt_db import flowdiagram_prompt
+        model = ChatGoogleGenerativeAI(
+            model=model_name,
+            google_api_key=api_key,
+            temperature=0.7,
+        )
+        system=SystemMessage(content=flowdiagram_prompt(str(EQUIPMENT_FRONTEND_SCHEMA_JSON)))
+        human=HumanMessage(content=process_data)
+        messages=[system,human]
+
+        # parser = JsonOutputParser(pydantic_object=List[Dict[str, Any]])
+        json_string=model.invoke({"messages": messages})
+        print("json_string.content",json_string.content)
+        # chain = model | parser
+        # list_of_dicts = chain.invoke({"messages": messages})
+        # print(list_of_dicts)
+        return json_string.content
+
 
     tools=[search_project_files , compounds_list, get_flow_diagram]
 
