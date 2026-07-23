@@ -1,0 +1,53 @@
+# Error Analysis: Deep Agent response failed: Found invalid Google-Style docstring
+
+## Cause of the Error
+The error is triggered by the `langchain.tools.tool` decorator when `parse_docstring=True` is enabled. This setting tells LangChain to automatically extract the tool's description and its arguments' descriptions from the function's docstring. To do this, it requires the docstring to strictly follow the **Google Python Style Guide**.
+
+In `ai_engine_2.py`, the function `get_pfd_structure` violates this style guide in its `Args` section.
+
+### Faulty Code Location
+File: `ai_engine_2.py`
+Function: `get_pfd_structure`
+
+```python
+    @tool(parse_docstring=True)
+    def get_pfd_structure(process_data : str) -> str:
+        """This tool generate the json structure which is needed for generating the process , this is used when user tell to generate PFD for the process
+        Args:
+        process_data: The complete set of aggregated input data from the chat,
+        RAG, and other sources needed to generate the PFD. ...
+```
+
+The `process_data:` argument description starts at the same indentation level as the `Args:` header. According to the Google Style Guide, the arguments listed under `Args:` must be indented.
+
+## How to Solve It
+To fix this error, you must indent the argument descriptions under the `Args:` section.
+
+### Suggested Modification
+
+**From:**
+```python
+        Args:
+        process_data: The complete set of aggregated input data from the chat,
+        RAG, and other sources needed to generate the PFD.
+```
+
+**To:**
+```python
+        Args:
+            process_data: The complete set of aggregated input data from the chat,
+            RAG, and other sources needed to generate the PFD.
+```
+
+(Ensure there is a consistent indentation—typically 4 spaces—relative to the `Args:` line).
+
+## General Guidance for Google-Style Docstrings
+When using `@tool(parse_docstring=True)`, always ensure your docstrings follow this structure:
+1. A summary line.
+2. An optional extended description.
+3. An `Args:` section with each argument indented:
+   `Args:`
+   `    arg_name: Description of the argument.`
+4. A `Returns:` section with the return value description indented:
+   `Returns:`
+   `    Description of the return value.`

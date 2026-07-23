@@ -12,6 +12,7 @@ from database import init_db, get_db, Project, Message, Simulation, File as DBFi
 from ai_engine_2 import generate_deep_agent_response
 from ai_tools import process_project_rag, process_simulation_config ,DUMMY_SIMULATION_DATA ,DUMMY_FLOW_DIAGRAM_DATA, get_formatted_flow_diagram
 from langchain_core.messages import HumanMessage ,SystemMessage ,AIMessage
+from langchain_core.output_parsers import JsonOutputParser
 import dummy_data
 
 app = FastAPI()
@@ -236,13 +237,18 @@ async def chat(project_id: str, request: ChatRequest, db: Session = Depends(get_
     print("history",history)
     # 3. Generate response using the Deep Agent responder
     try:
-        reply, flow_diagram = await generate_deep_agent_response(
+        reply = await generate_deep_agent_response(
             api_key=request.api_key,
             model_name=request.model_name,
             project_id=project_id,
             chat=request.message,
             chat_history=history
         )
+        parser = JsonOutputParser()
+        parsed_dict = parser.parse(reply)
+        print("parsed_dict",parsed_dict)
+
+
     except Exception as e:
         print(f"Deep Agent response failed: {e}")
         reply = f"AI Engine Error: {str(e)}"
@@ -251,15 +257,15 @@ async def chat(project_id: str, request: ChatRequest, db: Session = Depends(get_
 
     # 4. Save to DB
     user_msg = Message(project_id=project_id, role="user", content=request.message)
-    ai_msg = Message(project_id=project_id, role="ai", content=reply)
+    ai_msg = Message(project_id=project_id, role="ai", content=parsed_dict['text'])
     db.add(user_msg)
     db.add(ai_msg)
     db.commit()
 
-    return {
-        "text": reply,
-        "flow_diagram": DUMMY_FLOW_DIAGRAM_DATA#flow_diagram
-    }
+    return parsed_dict#{
+    #     "text": reply,
+    #     "flow_diagram": DUMMY_FLOW_DIAGRAM_DATA#flow_diagram
+    # }
 
 @app.get("/projects/{project_id}/flow-diagram")
 async def get_flow_diagram(project_id: str, db: Session = Depends(get_db)):

@@ -69,8 +69,9 @@ const Chatbot: React.FC<ChatbotProps> = ({ projectId, messages, setMessages, onF
       text: input,
     };
 
+    const typingId = `typing-${Date.now()}`;
     const typingMessage: ChatMessage = {
-      id: (Date.now() + 1).toString(),
+      id: typingId,
       sender: 'ai',
       text: '',
       isTyping: true,
@@ -92,7 +93,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ projectId, messages, setMessages, onF
       apiKey
     );
 
-    if (response.flowDiagram) {
+    if (response.flowDiagram && Array.isArray(response.flowDiagram) && response.flowDiagram.length > 0) {
         onFlowDiagramReceived?.(response.flowDiagram);
     }
 
@@ -102,7 +103,7 @@ const Chatbot: React.FC<ChatbotProps> = ({ projectId, messages, setMessages, onF
       text: response.text,
     };
     
-    setMessages(prev => [...prev.slice(0, -1), aiMessage]);
+    setMessages(prev => prev.map(m => m.id === typingId ? aiMessage : m));
   };
 
   const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {

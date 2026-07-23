@@ -11,6 +11,7 @@ from typing import List, Dict, Any
 from langchain_core.output_parsers import JsonOutputParser
 from ai_tools import process_project_rag, retrieve_rag_documents, DUMMY_FLOW_DIAGRAM_DATA
 import pandas as pd
+from prompt_db import deep_agent_prompt
 
 async def generate_deep_agent_response(api_key: str, model_name: str, project_id: str, chat: str, chat_history: List[Dict[str, Any]] = None):
     """
@@ -41,7 +42,7 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
             return "No relevant information found in uploaded files."
         return retrieved_docs#f"Saved {len(saved_paths)} chunks:\n" + "\n".join(saved_paths)
 
-    @tool
+    @tool#(parse_docstring=True)
     def compounds_list() -> list:
         """this tool will return the list of all chemicals available in the db
         which can be used in the simualtions
@@ -52,7 +53,7 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         data = pd.read_csv("Open_source_db2.csv")
         return (data.iloc[:,0]).tolist()
 
-    @tool(parse_docstring=True)
+    @tool#(parse_docstring=True)
     def get_flow_diagram() -> str:
         """This tool fetches the current flow diagram of the process.
         It returns a list of equipment with their IDs, outlets, and parameters.
@@ -64,13 +65,35 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         diagram_data = get_flow_diagram_from_db(project_id)
         return str(json.dumps(diagram_data, indent=2))
 
+    # @tool#(parse_docstring=True)
+    # def get_pfd_structure(process_data : str) -> str:
+    #     """This tool generate the json structure which is needed for generating the process , this is used when user tell to generate PFD for the process
+    #     Args:
+    #         process_data: The complete set of aggregated input data from the chat,
+    #     RAG, and other sources needed to generate the PFD. This must include
+    #     a list of all chemicals used, all equipment involved, and step-by-step
+    #     instructions containing specific equipment conditions. Ensure all
+    #     provided data originates from validated sources. Missing or
+    #     unspecified values can be omitted.
+    #
+    #     Returns:
+    #         A JSON string representing the flow diagram.
+    #     """
+
     @tool(parse_docstring=True)
-    def get_pfd_structure(process_data : str) -> str:
-        """This tool generate the json structure which is needed for generating the process , this is used when user tell to generate PFD for the process
-        process_data : the input data have the complete set of information from the chat , rag and other sources which is needed to generate the Pfd for the process
-        this should include list of all chemicals used in the process , all the equipments used in the process
-        step by step instruction of the process with equipment conditions ( make sure all the data provided should come from proper sources
-        if any values is not specified it can be left
+    def get_pfd_structure(process_data: str) -> str:
+        """Generates the JSON structure required to build a Process Flow Diagram (PFD).
+
+        This tool should be used when the user explicitly requests to generate a PFD
+        for a given process.
+
+        Args:
+            process_data: The complete set of aggregated input data from the chat,
+                RAG, and other sources needed to generate the PFD. This must include
+                a list of all chemicals used, all equipment involved, and step-by-step
+                instructions containing specific equipment conditions. Ensure all
+                provided data originates from validated sources. Missing or
+                unspecified values can be omitted.
 
         Returns:
             A JSON string representing the flow diagram.
@@ -133,7 +156,7 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         model,
         tools=tools,
         backend=backend,
-        system_prompt=instructions,
+        system_prompt=deep_agent_prompt,#instructions,
         # subagents=[chunk_analyst_subagent] if rag_exists else [],
     )
 
@@ -150,7 +173,7 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
     # Execute agent
     result = agent.invoke({"messages": messages})
 
-    print("result", result)
+    print("result = ", result)
 
     # Extraction logic for DeepAgent response
     try:
@@ -175,4 +198,4 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         print(f"Error parsing agent response: {e}")
         response = "I encountered an error generating a response."
 
-    return response, DUMMY_FLOW_DIAGRAM_DATA
+    return response#, DUMMY_FLOW_DIAGRAM_DATA
