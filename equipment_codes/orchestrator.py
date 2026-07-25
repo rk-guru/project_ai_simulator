@@ -30,16 +30,17 @@ class SimulationOrchestrator:
         if not outputs: return []
 
         eq_type = eq.type.lower()
-        eid = eq.id
+        # Use name instead of id, replacing spaces with underscores
+        name = eq.name.lower().replace(" ", "_") if eq.name else eq.id.lower()
 
         if "flash" in eq_type:
-            return [f"{eid}_vapor", f"{eid}_liquid"]
+            return [f"{name}_vapor", f"{name}_liquid"]
         elif "distillation" in eq_type:
-            return [f"{eid}_distillate", f"{eid}_bottom"]
+            return [f"{name}_distillate", f"{name}_bottom"]
         elif "splitter" in eq_type:
-            return [f"{eid}_{i+1}" for i in range(len(outputs))]
+            return [f"{name}_{i+1}" for i in range(len(outputs))]
         else:
-            return [f"{eid}_outlet"] if len(outputs) == 1 else [f"{eid}_outlet_{i+1}" for i in range(len(outputs))]
+            return [f"{name}_outlet"] if len(outputs) == 1 else [f"{name}_outlet_{i+1}" for i in range(len(outputs))]
 
     def execute_simulation(self, ordered_equipment: List[Any], connections: List[Dict[str, str]]) -> List[Dict[str, Any]]:
         self.registry = {}
@@ -64,7 +65,6 @@ class SimulationOrchestrator:
                     outputs = calc.calculate(eq.specs, input_streams)
 
                     # Calculate Energy Change (H_out - H_in)
-                    # simplified: sum(out_flow * h_out) - sum(in_flow * h_in)
                     h_in = sum(s.flow_rate * s.enthalpy for s in input_streams)
                     h_out = sum(s.flow_rate * s.enthalpy for s in outputs)
                     energy_change = h_out - h_in
@@ -79,19 +79,27 @@ class SimulationOrchestrator:
             # 3. Populate Table Rows
             stream_names = self._get_stream_names(eq, outputs)
 
-            # Add Energy Row if applicable
-            if energy_change is not None:
-                energy_name = f"{eq.id}_energy"
+            # Add Energy Row ONLY if there is a significant energy change
+            if energy_change is not None and abs(energy_change) > 1e-6:
+                name = eq.name.lower().replace(" ", "_") if eq.name else eq.id.lower()
+                energy_name = f"{name}_energy"
                 if "distillation" in eq.type.lower():
-                    # simplified: split between condenser and boiler
-                    energy_name = f"{eq.id}_condenser_energy" # In real world we'd have separate calcs
+                    energy_name = f"{name}_condenser_energy" # Simplified
 
                 table_results.append({
                     "Stream Name": energy_name,
-                    "Equipment ID": eq.id,
+                    "Equipment Name": eq.name if eq.name else eq.id,
                     "Equipment": eq.type,
+                    "Temperature": None,
+                    "Pressure": None,
+                    "Molar Flowrate": None,
+                    "Mass Flowrate": None,
+                    "Vapor Fraction": None,
+                    "Total Molar Composition (Mass Fraction)": None,
+                    "Liquid Molar Composition": None,
+                    "Vapor Molar Composition": None,
+                    "Enthalpy": None,
                     "Energy Change": energy_change,
-                    # Other columns empty for energy rows
                 })
 
             for i, s in enumerate(outputs):
@@ -102,15 +110,13 @@ class SimulationOrchestrator:
                 mass_flow = s.flow_rate * mw
                 mass_frac = mole_to_mass_fraction(s.compositions)
 
-                # Composition splits (Liquid/Vapor)
-                # For simple ideal simulation: we treat the stream as a single phase
-                # or split by vapor fraction.
+                # Composition splits
                 l_comp = {k: v * (1 - s.vapor_fraction) for k, v in s.compositions.items()}
                 v_comp = {k: v * s.vapor_fraction for k, v in s.compositions.items()}
 
                 table_results.append({
                     "Stream Name": name,
-                    "Equipment ID": eq.id,
+                    "Equipment Name": eq.name if eq.name else eq.id,
                     "Equipment": eq.type,
                     "Temperature": s.temperature,
                     "Pressure": s.pressure,
@@ -121,6 +127,7 @@ class SimulationOrchestrator:
                     "Liquid Molar Composition": l_comp,
                     "Vapor Molar Composition": v_comp,
                     "Enthalpy": s.enthalpy,
+                    "Energy Change": None,
                 })
 
         return table_results

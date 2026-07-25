@@ -4,6 +4,7 @@ import { EquipmentIcon } from './icons/EquipmentIcons';
 import PropertiesPanel from './PropertiesPanel';
 import PlayIcon from './icons/PlayIcon';
 import TrashIcon from './icons/TrashIcon';
+import Modal from './Modal';
 
 const PALETTE_GROUPS = [
     {
@@ -105,6 +106,7 @@ const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEd
   const [viewState, setViewState] = useState({ panX: 0, panY: 0, zoom: 1 });
   const [isPanning, setIsPanning] = useState(false);
   const [panStart, setPanStart] = useState({ x: 0, y: 0 });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const equipmentCounters = useRef<Record<string, number>>(
     Object.values(EquipmentType).reduce((acc, curr) => ({ ...acc, [curr]: 0 }), {})

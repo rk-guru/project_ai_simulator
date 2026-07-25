@@ -51,8 +51,64 @@ const ResultTable: React.FC<ResultTableProps> = ({ data }) => {
       return 'text-gray-300';
   };
 
+  const downloadCSV = () => {
+    if (data.length === 0) return;
+
+    const rows: any[][] = [];
+
+    // 1. Basic Properties
+    Object.entries(PROPERTY_METADATA).forEach(([key, meta]) => {
+      if (key.includes("Composition")) return;
+
+      const row = [meta.label + (meta.unit ? ` (${meta.unit})` : '')];
+      data.forEach(streamData => {
+        const val = streamData[key];
+        row.push(val !== null && val !== undefined ? val : '-');
+      });
+      rows.push(row);
+    });
+
+    // 2. Composition Groups
+    const compositionKeys = ["Total Molar Composition (Mass Fraction)", "Liquid Molar Composition", "Vapor Molar Composition"];
+    compositionKeys.forEach(key => {
+      const meta = PROPERTY_METADATA[key];
+      rows.push([meta.label, ...data.map(() => '')]);
+
+      componentsList.forEach(comp => {
+        const row = [comp];
+        data.forEach(streamData => {
+          const val = streamData[key]?.[comp];
+          row.push(val !== null && val !== undefined ? val : '-');
+        });
+        rows.push(row);
+      });
+    });
+
+    const csvContent = rows.map(row => row.join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'simulation_results.csv');
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <div className="h-full flex flex-col bg-slate-800/50 rounded-lg overflow-hidden border border-slate-700">
+    <div className="h-full flex flex-col bg-slate-800/50 rounded-lg overflow-hidden border border-slate-700 relative">
+      <div className="absolute top-4 right-4 z-20">
+        <button
+          onClick={downloadCSV}
+          className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-medium rounded shadow-sm transition-colors flex items-center gap-1"
+        >
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+          </svg>
+          Download CSV
+        </button>
+      </div>
       <div className="overflow-auto flex-1 custom-scrollbar">
         <table className="w-full text-sm text-left border-collapse">
             <thead className="text-xs text-gray-400 uppercase bg-slate-700 sticky top-0 z-10">

@@ -202,7 +202,8 @@ def process_simulation_config(config_json: Dict[str, Any]):
     processed_config = {
         "equipment_count": len(nodes),
         "connection_count": len(edges),
-        "details": []
+        "details": [],
+        "connections": []
     }
 
     for node in nodes:
@@ -215,7 +216,14 @@ def process_simulation_config(config_json: Dict[str, Any]):
         }
         processed_config["details"].append(node_info)
 
-    print(f"Processed simulation configuration for {len(nodes)} units.")
+    for edge in edges:
+        # Map 'from' and 'to' to 'source_id' and 'target_id' for the simulation engine
+        processed_config["connections"].append({
+            "source_id": edge.get("from"),
+            "target_id": edge.get("to")
+        })
+
+    print(f"Processed simulation configuration for {len(nodes)} units and {len(edges)} connections.")
     return processed_config
 
 @tool

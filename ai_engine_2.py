@@ -36,9 +36,12 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         Returns:
             retrieved chunks data is returned
         """
-        retrieved_docs = retrieve_rag_documents(api_key, project_id, query)
-        print("retrieved_docs",retrieved_docs)
-        if not retrieved_docs:
+        try:
+            retrieved_docs = retrieve_rag_documents(api_key, project_id, query)
+            print("retrieved_docs",retrieved_docs)
+            if not retrieved_docs:
+                return "No relevant information found in uploaded files."
+        except:
             return "No relevant information found in uploaded files."
         return retrieved_docs#f"Saved {len(saved_paths)} chunks:\n" + "\n".join(saved_paths)
 
@@ -66,20 +69,6 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         print("getting data from flowdiagram",diagram_data)
         return str(json.dumps(diagram_data, indent=2))
 
-    # @tool#(parse_docstring=True)
-    # def get_pfd_structure(process_data : str) -> str:
-    #     """This tool generate the json structure which is needed for generating the process , this is used when user tell to generate PFD for the process
-    #     Args:
-    #         process_data: The complete set of aggregated input data from the chat,
-    #     RAG, and other sources needed to generate the PFD. This must include
-    #     a list of all chemicals used, all equipment involved, and step-by-step
-    #     instructions containing specific equipment conditions. Ensure all
-    #     provided data originates from validated sources. Missing or
-    #     unspecified values can be omitted.
-    #
-    #     Returns:
-    #         A JSON string representing the flow diagram.
-    #     """
 
     @tool(parse_docstring=True)
     def get_pfd_structure(process_data: str) -> str:

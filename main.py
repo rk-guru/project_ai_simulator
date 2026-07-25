@@ -295,29 +295,18 @@ async def get_flow_diagram(project_id: str, db: Session = Depends(get_db)):
 
 @app.post("/simulation/run")
 async def run_simulation(request: SimulationRunRequest, db: Session = Depends(get_db)):
-    # Process the frontend configuration using the tool
+    # 1. Process the frontend configuration into the format expected by simulation.py
     processed_data = process_simulation_config(request.project_data)
-    print("""
-    
-    processed_data""",processed_data)
-    simulation_table = simulation_calculation(processed_data)
-    print("simulation_table",simulation_table)
 
-    # Generate simulated results
-    results = []
-    if request.api_key:
-        try:
-            # Here you would typically call an AI function to generate realistic results
-            # For now, we'll use dummy data or a simplified response
-            from ai_tools import DUMMY_SIMULATION_DATA
-            results = DUMMY_SIMULATION_DATA.get("results", [])
-        except Exception as e:
-            print(f"AI Simulation Error: {e}")
+    # 2. Run the thermodynamic simulation
+    try:
+        # simulation_calculation now returns the detailed results table (list of dicts)
+        results = simulation_calculation(processed_data)
+    except Exception as e:
+        print(f"Simulation Error: {e}")
+        raise HTTPException(status_code=500, detail=f"Simulation failed: {str(e)}")
 
-    # Fallback to dummy data generator if AI failed or no API key provided
-    if not results:
-        results = dummy_data.generate_dummy_simulation_results(request.project_data)
-
+    # 3. Save the simulation record (config and results) to the database
     sim = Simulation(
         project_id=request.projectId,
         config_json=json.dumps(request.project_data),

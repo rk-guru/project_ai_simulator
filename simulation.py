@@ -184,7 +184,7 @@ def simulation_calculation(api_data: dict) -> Any:
     # Print as a formatted table for debugging/console output
     if results_table:
         headers = [
-            "Stream Name", "Equipment ID", "Equipment", "Temperature",
+            "Stream Name", "Equipment Name", "Equipment", "Temperature",
             "Pressure", "Molar Flowrate", "Mass Flowrate", "Vapor Fraction",
             "Total Molar Composition (Mass Fraction)", "Liquid Molar Composition",
             "Vapor Molar Composition", "Enthalpy", "Energy Change"
