@@ -63,6 +63,7 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         """
         from ai_tools import get_flow_diagram_from_db
         diagram_data = get_flow_diagram_from_db(project_id)
+        print("getting data from flowdiagram",diagram_data)
         return str(json.dumps(diagram_data, indent=2))
 
     # @tool#(parse_docstring=True)
@@ -91,7 +92,9 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
             process_data: The complete set of aggregated input data from the chat,
                 RAG, and other sources needed to generate the PFD. This must include
                 a list of all chemicals used, all equipment involved, and step-by-step
-                instructions containing specific equipment conditions. Ensure all
+                instructions containing specific equipment conditions and also specify
+                the chemicals used in the process with the composition of each stream
+                in mole fraction or flowrate for each stream. Ensure all
                 provided data originates from validated sources. Missing or
                 unspecified values can be omitted.
 
@@ -100,6 +103,7 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         """
         from equipment_reference import EQUIPMENT_FRONTEND_SCHEMA_JSON
         from prompt_db import flowdiagram_prompt
+        print("process_data",process_data)
         model = ChatGoogleGenerativeAI(
             model=model_name,
             google_api_key=api_key,
@@ -110,7 +114,8 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         messages=[system,human]
 
         # parser = JsonOutputParser(pydantic_object=List[Dict[str, Any]])
-        json_string=model.invoke({"messages": messages})
+        # json_string=model.invoke({"messages": messages})
+        json_string = model.invoke(messages)
         print("json_string.content",json_string.content)
         # chain = model | parser
         # list_of_dicts = chain.invoke({"messages": messages})
@@ -118,7 +123,7 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         return json_string.content
 
 
-    tools=[search_project_files , compounds_list, get_flow_diagram]
+    tools=[search_project_files , compounds_list, get_flow_diagram,get_pfd_structure]
 
 
     # RAG Status
@@ -157,7 +162,7 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         tools=tools,
         backend=backend,
         system_prompt=deep_agent_prompt,#instructions,
-        # subagents=[chunk_analyst_subagent] if rag_exists else [],
+        subagents=[chunk_analyst_subagent] if rag_exists else [],
     )
 
     # Prepare messages

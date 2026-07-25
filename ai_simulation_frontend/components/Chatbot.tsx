@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChatMessage } from '../types';
+import { Project, ChatMessage } from '../types';
 import { generateChatResponse } from '../services/geminiService';
 import { dbService } from '../services/db';
 import ReactMarkdown from 'react-markdown';

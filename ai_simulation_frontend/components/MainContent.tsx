@@ -51,18 +51,9 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
   const [edges, setEdges] = useState<FlowsheetEdge[]>(project.edges || []);
   const [results, setResults] = useState<any[]>(project.results || []);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const processedMessageIds = useRef<Set<string>>(new Set((project.messages || []).map(m => m.id)));
-
-  useEffect(() => {
-    setProjectName(project.name);
-    setMessages(project.messages || []);
-    setNodes(project.nodes || []);
-    setEdges(project.edges || []);
-    setResults(project.results || []);
-    const currentIds = new Set((project.messages || []).map(m => m.id));
-    currentIds.forEach(id => processedMessageIds.current.add(id));
-  }, [project]);
 
   // Automatic Flowsheet Parsing (Kept as fallback for text-based AI responses)
   useEffect(() => {
@@ -218,6 +209,30 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
     setIsSaveModalOpen(false);
   };
 
+  const handleDeleteSimulation = async () => {
+    try {
+      // 1. Clear frontend state
+      setNodes([]);
+      setEdges([]);
+      setResults([]);
+
+      // 2. Update project state to persist empty diagram
+      onUpdateProject(project.id, {
+          nodes: [],
+          edges: [],
+          results: []
+      });
+
+      // 3. Delete simulation records from DB
+      await dbService.deleteSimulation(project.id);
+
+      setIsDeleteModalOpen(false);
+    } catch (error) {
+      console.error("Failed to delete simulation:", error);
+      alert("Error deleting simulation data. Please try again.");
+    }
+  };
+
   const handleRunSimulation = async () => {
       // Prepare project object for the backend run
       const currentProjectState: Project = {
@@ -230,10 +245,14 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
       // Call backend to run simulation
       // This will return the "Dataframe" (array of objects)
       const simulationResults = await dbService.runSimulation(project.id, currentProjectState);
-      
+
       setResults(simulationResults);
-      // Save results to project state
-      onUpdateProject(project.id, { results: simulationResults });
+      // Save results and current canvas state to project state to prevent reset
+      onUpdateProject(project.id, {
+          results: simulationResults,
+          nodes,
+          edges
+      });
       setActiveTab('result-table');
   };
 
@@ -247,7 +266,14 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
             onFlowDiagramReceived={generateFlowsheetFromStructuredData}
         />;
       case 'flow-diagram':
-        return <FlowDiagram nodes={nodes} setNodes={setNodes} edges={edges} setEdges={setEdges} onRun={handleRunSimulation} />;
+        return <FlowDiagram
+            nodes={nodes}
+            setNodes={setNodes}
+            edges={edges}
+            setEdges={setEdges}
+            onRun={handleRunSimulation}
+            onDeleteSimulation={() => setIsDeleteModalOpen(true)}
+        />;
       case 'result-table':
         return <ResultTable data={results} />;
       default: return null;
@@ -301,6 +327,18 @@ const MainContent: React.FC<MainContentProps> = ({ project, onUpdateProject }) =
           >
             <p className="text-sm text-gray-300">
               Are you sure you want to save the current changes to "{projectName}"?
+            </p>
+          </Modal>
+        )}
+        {isDeleteModalOpen && (
+          <Modal
+            title="Delete Simulation"
+            confirmLabel="Delete"
+            onConfirm={handleDeleteSimulation}
+            onClose={() => setIsDeleteModalOpen(false)}
+          >
+            <p className="text-sm text-gray-300">
+              Are you sure you want to delete the complete flow diagram and all simulation data? This action cannot be undone.
             </p>
           </Modal>
         )}

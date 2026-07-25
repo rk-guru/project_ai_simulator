@@ -129,27 +129,34 @@ const App: React.FC = () => {
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
-            {showSettings ? (
-        <Settings onBack={() => setShowSettings(false)} />
-      ) : activeProject ? (
-        <MainContent
-          key={activeProject.id}
-          project={activeProject}
-          onUpdateProject={updateProject}
-        />
-      ) : (
-        <div className="flex-1 flex items-center justify-center text-gray-500">
-            <div className="text-center">
+      <div className="flex-1 relative">
+        <div className={`${showSettings ? 'hidden' : 'flex'} h-full w-full`}>
+          {activeProject ? (
+            <MainContent
+              key={activeProject.id}
+              project={activeProject}
+              onUpdateProject={updateProject}
+            />
+          ) : (
+            <div className="flex-1 flex items-center justify-center text-gray-500">
+              <div className="text-center">
                 <p className="mb-4">Select a project to view details</p>
                 <button
-                    onClick={createNewProject}
-                    className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-500 transition-colors"
+                  onClick={createNewProject}
+                  className="px-4 py-2 text-sm font-semibold text-white bg-indigo-600 rounded-md hover:bg-indigo-500 transition-colors"
                 >
-                    Create First Project
+                  Create First Project
                 </button>
+              </div>
             </div>
+          )}
         </div>
-      )}
+        {showSettings && (
+          <div className="absolute inset-0">
+            <Settings onBack={() => setShowSettings(false)} />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

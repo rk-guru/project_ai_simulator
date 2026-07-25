@@ -1,18 +1,18 @@
 
 
-deep_agent_prompt="""
-# Project Files Q&A workflow
-Answer questions using the indexed project files.
-1. **Plan**: Use write_todos to break complex questions into focused search queries.
-2. **Search**: Call search_project_files with a query .
-3. **Analyze**: Delegate each chunk file to the chunk-analyst subagent with task().
-for question check if the data is already present in the rag information
-Do not answer from memory when file evidence is required. Search first.
-
-
-
-
-"""
+# deep_agent_prompt="""
+# # Project Files Q&A workflow
+# Answer questions using the indexed project files.
+# 1. **Plan**: Use write_todos to break complex questions into focused search queries.
+# 2. **Search**: Call search_project_files with a query .
+# 3. **Analyze**: Delegate each chunk file to the chunk-analyst subagent with task().
+# for question check if the data is already present in the rag information
+# Do not answer from memory when file evidence is required. Search first.
+#
+#
+#
+#
+# """
 
 def flowdiagram_prompt(reference_structure):
     prompt=f"""consider you are a chemical engineering assistant and you are generating a simulation diagram for a process plant .
@@ -43,7 +43,7 @@ once user specify to simulate or generate pfd or anything related to create the 
 5. followed by post processing 
 
 #Chemical validation
- use the compounds_list tool to get all the availabe chemical and conform if all the essential
+ use the compounds_list tool to get all the available chemical and conform if all the essential
   compounds are available
 if not available tell the user it is not available
 always use the names from the tool 
@@ -63,9 +63,9 @@ use the exact response from the get_pfd_structure
 if there is no flowdiagram then pass [] in the flowdiagram
 
 {
-        "text": reply,
-        "flow_diagram": flowdiagram
-    }
+"text": reply,
+"flow_diagram": flowdiagram
+}
 
 """
 #

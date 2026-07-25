@@ -3,6 +3,7 @@ import { EquipmentType, FlowsheetNode, FlowsheetEdge } from '../types';
 import { EquipmentIcon } from './icons/EquipmentIcons';
 import PropertiesPanel from './PropertiesPanel';
 import PlayIcon from './icons/PlayIcon';
+import TrashIcon from './icons/TrashIcon';
 
 const PALETTE_GROUPS = [
     {
@@ -45,6 +46,8 @@ const getDefaultProperties = (type: EquipmentType): Record<string, any> => {
     }
 };
 
+const SVG_OFFSET = 5000;
+
 const getOrthogonalPathD = (fromNode: FlowsheetNode, toNode: FlowsheetNode): string => {
   if (!fromNode || !toNode) return "";
 
@@ -72,7 +75,7 @@ const getOrthogonalPathD = (fromNode: FlowsheetNode, toNode: FlowsheetNode): str
       startPoint = { x: fromNode.x, y: fromCenter.y };
       endPoint = { x: toNode.x + NODE_DIMS.width, y: toCenter.y };
     }
-    path = `M ${startPoint.x},${startPoint.y} H ${midX} V ${endPoint.y} H ${endPoint.x}`;
+    path = `M ${startPoint.x + SVG_OFFSET},${startPoint.y + SVG_OFFSET} H ${midX + SVG_OFFSET} V ${endPoint.y + SVG_OFFSET} H ${endPoint.x + SVG_OFFSET}`;
   } else {
     const midY = fromCenter.y + dy / 2;
     if (dy > 0) {
@@ -82,7 +85,7 @@ const getOrthogonalPathD = (fromNode: FlowsheetNode, toNode: FlowsheetNode): str
       startPoint = { x: fromCenter.x, y: fromNode.y };
       endPoint = { x: toCenter.x, y: toNode.y + NODE_DIMS.height };
     }
-    path = `M ${startPoint.x},${startPoint.y} V ${midY} H ${endPoint.x} V ${endPoint.y}`;
+    path = `M ${startPoint.x + SVG_OFFSET},${startPoint.y + SVG_OFFSET} V ${midY + SVG_OFFSET} H ${endPoint.x + SVG_OFFSET} V ${endPoint.y + SVG_OFFSET}`;
   }
 
   return path;
@@ -94,9 +97,10 @@ interface FlowDiagramProps {
     edges: FlowsheetEdge[];
     setEdges: React.Dispatch<React.SetStateAction<FlowsheetEdge[]>>;
     onRun: () => void;
+    onDeleteSimulation: () => void;
 }
 
-const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEdges, onRun }) => {
+const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEdges, onRun, onDeleteSimulation }) => {
   const [selectedNodeId, setSelectedNodeId] = useState<string | null>(null);
   const [viewState, setViewState] = useState({ panX: 0, panY: 0, zoom: 1 });
   const [isPanning, setIsPanning] = useState(false);
@@ -113,10 +117,16 @@ const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEd
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+            return;
+        }
+
         if ((e.key === 'Delete' || e.key === 'Backspace') && selectedNodeId) {
-            setNodes(prev => prev.filter(n => n.id !== selectedNodeId));
-            setEdges(prev => prev.filter(edge => edge.from !== selectedNodeId && edge.to !== selectedNodeId));
-            setSelectedNodeId(null);
+            if (window.confirm("Are you sure you want to delete the selected equipment and all its connections?")) {
+                setNodes(prev => prev.filter(n => n.id !== selectedNodeId));
+                setEdges(prev => prev.filter(edge => edge.from !== selectedNodeId && edge.to !== selectedNodeId));
+                setSelectedNodeId(null);
+            }
         }
     };
 
@@ -173,15 +183,17 @@ const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEd
   const handleNodeMouseDown = (e: React.MouseEvent, nodeId: string) => {
     if (e.button !== 0) return;
 
+    e.stopPropagation();
+
     setSelectedNodeId(nodeId);
 
     const node = nodes.find(n => n.id === nodeId);
     if (!node || !canvasRef.current) return;
 
     const canvasRect = canvasRef.current.getBoundingClientRect();
-    // Adjust offset based on zoom
-    const offsetX = (e.clientX - canvasRect.left - node.x * viewState.zoom) / viewState.zoom;
-    const offsetY = (e.clientY - canvasRect.top - node.y * viewState.zoom) / viewState.zoom;
+    // Correct offset calculation: worldX = (screenX - panX) / zoom
+    const offsetX = (e.clientX - canvasRect.left - viewState.panX - node.x * viewState.zoom) / viewState.zoom;
+    const offsetY = (e.clientY - canvasRect.top - viewState.panY - node.y * viewState.zoom) / viewState.zoom;
 
     setDraggingInfo({ id: nodeId, offsetX, offsetY });
   };
@@ -227,7 +239,7 @@ const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEd
 
   const handleWheel = (e: React.WheelEvent) => {
       e.preventDefault();
-      const zoomSpeed = 0.0005;
+      const zoomSpeed = 0.0002;
       const delta = -e.deltaY;
       const newZoom = Math.min(Math.max(0.2, viewState.zoom + delta * zoomSpeed), 3);
 
@@ -239,7 +251,7 @@ const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEd
       const mouseY = e.clientY - rect.top;
 
       const worldX = (mouseX - viewState.panX) / viewState.zoom;
-      const worldY = (mouseY - rect.top - viewState.panY) / viewState.zoom; // fix typo in logic
+      const worldY = (mouseY - viewState.panY) / viewState.zoom;
 
       setViewState(prev => ({
           ...prev,
@@ -317,6 +329,13 @@ const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEd
                   <PlayIcon className="w-4 h-4 mr-2" />
                   Run Simulation
               </button>
+              <button
+                  onClick={onDeleteSimulation}
+                  className="flex items-center px-4 py-2 bg-red-600 hover:bg-red-500 text-white text-sm font-semibold rounded-md shadow-lg transition-colors"
+              >
+                  <TrashIcon className="w-4 h-4 mr-2" />
+                  Delete Simulation
+              </button>
           </div>
 
           <div
@@ -327,7 +346,12 @@ const FlowDiagram: React.FC<FlowDiagramProps> = ({ nodes, setNodes, edges, setEd
             }}
             className="absolute inset-0 pointer-events-none"
           >
-            <svg className="absolute top-0 left-0 w-full h-full pointer-events-none">
+            <svg
+              className="absolute pointer-events-none"
+              width="10000"
+              height="10000"
+              style={{ top: '-5000px', left: '-5000px' }}
+            >
               <defs>
                 <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="8" refY="3.5" orient="auto">
                   <polygon points="0 0, 10 3.5, 0 7" fill="#4f46e5" />

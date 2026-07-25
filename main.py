@@ -13,6 +13,7 @@ from ai_engine_2 import generate_deep_agent_response
 from ai_tools import process_project_rag, process_simulation_config ,DUMMY_SIMULATION_DATA ,DUMMY_FLOW_DIAGRAM_DATA, get_formatted_flow_diagram
 from langchain_core.messages import HumanMessage ,SystemMessage ,AIMessage
 from langchain_core.output_parsers import JsonOutputParser
+from simulation import simulation_calculation
 import dummy_data
 
 app = FastAPI()
@@ -251,8 +252,9 @@ async def chat(project_id: str, request: ChatRequest, db: Session = Depends(get_
 
     except Exception as e:
         print(f"Deep Agent response failed: {e}")
-        reply = f"AI Engine Error: {str(e)}"
-        flow_diagram = None
+        parsed_dict={}
+        parsed_dict['text'] = f"AI Engine Error: {str(e)}"
+        parsed_dict["flow_diagram"] = None
 
 
     # 4. Save to DB
@@ -266,6 +268,12 @@ async def chat(project_id: str, request: ChatRequest, db: Session = Depends(get_
     #     "text": reply,
     #     "flow_diagram": DUMMY_FLOW_DIAGRAM_DATA#flow_diagram
     # }
+
+@app.delete("/simulation/{project_id}")
+async def delete_simulation(project_id: str, db: Session = Depends(get_db)):
+    db.query(Simulation).filter(Simulation.project_id == project_id).delete()
+    db.commit()
+    return {"message": "Simulation data deleted successfully"}
 
 @app.get("/projects/{project_id}/flow-diagram")
 async def get_flow_diagram(project_id: str, db: Session = Depends(get_db)):
@@ -289,6 +297,11 @@ async def get_flow_diagram(project_id: str, db: Session = Depends(get_db)):
 async def run_simulation(request: SimulationRunRequest, db: Session = Depends(get_db)):
     # Process the frontend configuration using the tool
     processed_data = process_simulation_config(request.project_data)
+    print("""
+    
+    processed_data""",processed_data)
+    simulation_table = simulation_calculation(processed_data)
+    print("simulation_table",simulation_table)
 
     # Generate simulated results
     results = []

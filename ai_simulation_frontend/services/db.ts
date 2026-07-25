@@ -81,5 +81,9 @@ export const dbService = {
       });
       if (!response.ok) throw new Error("Simulation failed");
       return await response.json();
+  },
+
+  async deleteSimulation(projectId: string): Promise<void> {
+    await fetchWithTimeout(`${API_URL}/simulation/${projectId}`, { method: 'DELETE' });
   }
 };
