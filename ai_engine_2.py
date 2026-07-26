@@ -69,6 +69,21 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         print("getting data from flowdiagram",diagram_data)
         return str(json.dumps(diagram_data, indent=2))
 
+    @tool(parse_docstring=True)
+    def get_simulation_results() -> str:
+        """This tool fetches the latest simulation results table for the current project.
+        It returns the calculation results (parameters, values, status) in JSON format.
+
+        Returns:
+            A JSON string containing the simulation results table data.
+        """
+        from ai_tools import get_simulation_results_from_db
+        results_data = get_simulation_results_from_db(project_id)
+        print("getting simulation results", results_data)
+        return str(json.dumps(results_data, indent=2))
+
+    # @tool(parse_docstring=True)
+    # def get_pfd_structure(process_data: str) -> str:
 
     @tool(parse_docstring=True)
     def get_pfd_structure(process_data: str) -> str:
@@ -112,7 +127,7 @@ async def generate_deep_agent_response(api_key: str, model_name: str, project_id
         return json_string.content
 
 
-    tools=[search_project_files , compounds_list, get_flow_diagram,get_pfd_structure]
+    tools=[search_project_files , compounds_list, get_flow_diagram, get_simulation_results, get_pfd_structure]
 
 
     # RAG Status

@@ -55,6 +55,9 @@ always use the names from the tool
 ##get data from flow diagram
 if the user ask question about the flowdiagram use the get_flow_diagram tool to get the information and respond using that
 
+##get data from result table
+when user as question related to the simulation result use the get_simulation_results tool to get the relevant information
+
 #MANDATORY CONDITION
 Always return in the following json structure 
 the reply have the important point and a small description of the process 

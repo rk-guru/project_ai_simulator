@@ -73,16 +73,26 @@ async def create_project(project: ProjectCreate, db: Session = Depends(get_db)):
 @app.get("/projects")
 async def get_projects(db: Session = Depends(get_db)):
     projects = db.query(Project).all()
-    return [
-        {
+    result = []
+    for p in projects:
+        # Get latest simulation for this project
+        sim = db.query(Simulation).filter(Simulation.project_id == p.id).order_by(Simulation.id.desc()).first()
+        nodes, edges, results = [], [], []
+        if sim:
+            config = json.loads(sim.config_json) if sim.config_json else {}
+            nodes = config.get("nodes", [])
+            edges = config.get("edges", [])
+            results = json.loads(sim.results_json) if sim.results_json else []
+
+        result.append({
             "id": p.id,
             "name": p.name,
             "messages": [ { "sender": m.role if m.role == 'user' else 'ai', "text": m.content } for m in p.messages ],
-            "nodes": [], # These would be extracted from the last simulation
-            "edges": [],
-            "results": []
-        } for p in projects
-    ]
+            "nodes": nodes,
+            "edges": edges,
+            "results": results
+        })
+    return result
 
 @app.get("/projects/{project_id}")
 async def get_project(project_id: str, db: Session = Depends(get_db)):
@@ -90,11 +100,23 @@ async def get_project(project_id: str, db: Session = Depends(get_db)):
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
+    # Get latest simulation
+    sim = db.query(Simulation).filter(Simulation.project_id == project_id).order_by(Simulation.id.desc()).first()
+    nodes, edges, results = [], [], []
+    if sim:
+        config = json.loads(sim.config_json) if sim.config_json else {}
+        nodes = config.get("nodes", [])
+        edges = config.get("edges", [])
+        results = json.loads(sim.results_json) if sim.results_json else []
+
     return {
         "id": project.id,
         "name": project.name,
         "messages": [ { "sender": m.role if m.role == 'user' else 'ai', "text": m.content } for m in project.messages ],
-        "files": [ { "name": f.filename } for f in project.files ]
+        "files": [ { "name": f.filename } for f in project.files ],
+        "nodes": nodes,
+        "edges": edges,
+        "results": results
     }
 
 @app.put("/projects/{project_id}")
@@ -115,14 +137,24 @@ async def update_project(project_id: str, data: ProjectUpdate, db: Session = Dep
             content = msg.get('content') or msg.get('text', '')
             db.add(Message(project_id=project_id, role=role, content=content))
 
-    # For nodes/edges/results, we can store them as a simulation record
-    if data.nodes or data.edges or data.results:
-        sim = Simulation(
-            project_id=project_id,
-            config_json=json.dumps({"nodes": data.nodes, "edges": data.edges}),
-            results_json=json.dumps(data.results)
-        )
-        db.add(sim)
+    # For nodes/edges/results, update the latest simulation record or create a new one
+    if data.nodes is not None or data.edges is not None or data.results is not None:
+        sim = db.query(Simulation).filter(Simulation.project_id == project_id).order_by(Simulation.id.desc()).first()
+        if not sim:
+            sim = Simulation(project_id=project_id)
+            db.add(sim)
+
+        if data.nodes is not None or data.edges is not None:
+            # Use existing config if only one is provided
+            current_config = json.loads(sim.config_json) if sim.config_json else {"nodes": [], "edges": []}
+            config = {
+                "nodes": data.nodes if data.nodes is not None else current_config.get("nodes", []),
+                "edges": data.edges if data.edges is not None else current_config.get("edges", [])
+            }
+            sim.config_json = json.dumps(config)
+
+        if data.results is not None:
+            sim.results_json = json.dumps(data.results)
 
     db.commit()
     return {"message": "Project updated successfully"}
@@ -292,6 +324,19 @@ async def get_flow_diagram(project_id: str, db: Session = Depends(get_db)):
         return {"status": "success", "flow_diagram": formatted_diagram}
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error processing flow diagram: {str(e)}")
+
+@app.get("/projects/{project_id}/simulation-results")
+async def get_simulation_results(project_id: str, db: Session = Depends(get_db)):
+    """Fetch the latest simulation results for a project"""
+    sim = db.query(Simulation).filter(Simulation.project_id == project_id).order_by(Simulation.id.desc()).first()
+    if not sim or not sim.results_json:
+        return {"status": "success", "results": []}
+
+    try:
+        results = json.loads(sim.results_json)
+        return {"status": "success", "results": results}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error processing results: {str(e)}")
 
 @app.post("/simulation/run")
 async def run_simulation(request: SimulationRunRequest, db: Session = Depends(get_db)):

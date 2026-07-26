@@ -65,7 +65,7 @@ const PropertyInput: React.FC<{label: string, name: string, value: any, unit?: s
 
 
 const SearchableCompoundSelect: React.FC<{
-  value: string;
+  value: any;
   onChange: (val: string) => void;
   chemicals: string[];
 }> = ({ value, onChange, chemicals }) => {
@@ -411,50 +411,50 @@ const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
 
 
   const renderParameters = () => {
-    const { type, properties } = node;
+    const { type, properties = {} } = node;
     const params: React.ReactElement[] = [];
 
     switch(type) {
         case EquipmentType.Feed:
-            params.push(<PropertyInput key="temp" label="Temperature" name="temperature" unit="K" value={properties.temperature} onChange={handlePropertyChange} />);
-            params.push(<PropertyInput key="press" label="Pressure" name="pressure" unit="Pa" value={properties.pressure} onChange={handlePropertyChange} />);
-            params.push(<PropertyInput key="flow" label="Flow Rate" name="flowRate" unit="mol/s" value={properties.flowRate} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="temp" label="Temperature" name="temperature" unit="K" value={properties.temperature ?? 300} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="press" label="Pressure" name="pressure" unit="Pa" value={properties.pressure ?? 1} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="flow" label="Flow Rate" name="flowRate" unit="mol/s" value={properties.flowRate ?? 0} onChange={handlePropertyChange} />);
             break;
         case EquipmentType.Tank:
         case EquipmentType.Flash:
-            params.push(<PropertyInput key="temp" label="Temperature" name="temperature" unit="K" value={properties.temperature} onChange={handlePropertyChange} />);
-            params.push(<PropertyInput key="press" label="Pressure" name="pressure" unit="Pa" value={properties.pressure} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="temp" label="Temperature" name="temperature" unit="K" value={properties.temperature ?? 300} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="press" label="Pressure" name="pressure" unit="Pa" value={properties.pressure ?? 1} onChange={handlePropertyChange} />);
             break;
         case EquipmentType.Reactor:
-            params.push(<PropertyInput key="temp" label="Temperature" name="temperature" unit="K" value={properties.temperature} onChange={handlePropertyChange} />);
-            params.push(<PropertyInput key="press" label="Pressure" name="pressure" unit="Pa" value={properties.pressure} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="temp" label="Temperature" name="temperature" unit="K" value={properties.temperature ?? 300} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="press" label="Pressure" name="pressure" unit="Pa" value={properties.pressure ?? 1} onChange={handlePropertyChange} />);
             params.push(renderStoichiometryTable('Reactants', 'reactants'));
             params.push(renderStoichiometryTable('Products', 'products'));
-            params.push(<PropertyInput key="conv" label="Conversion" name="conversion" unit="%" value={properties.conversion} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="conv" label="Conversion" name="conversion" unit="%" value={properties.conversion ?? 0} onChange={handlePropertyChange} />);
             break;
         case EquipmentType.Pump:
         case EquipmentType.Compressor:
         case EquipmentType.Expander:
-            params.push(<PropertyInput key="out-press" label="Output Pressure" name="outletPressure" unit="Pa" value={properties.outletPressure} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="out-press" label="Output Pressure" name="outletPressure" unit="Pa" value={properties.outletPressure ?? 2} onChange={handlePropertyChange} />);
             break;
         case EquipmentType.Heater:
         case EquipmentType.Cooler:
-            params.push(<PropertyInput key="out-temp" label="Outlet Temperature" name="outletTemperature" unit="K" value={properties.outletTemperature} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="out-temp" label="Outlet Temperature" name="outletTemperature" unit="K" value={properties.outletTemperature ?? 350} onChange={handlePropertyChange} />);
             break;
         case EquipmentType.DistillationColumn:
-            params.push(<PropertyInput key="stages" label="Number of Stages" name="stages" value={properties.stages} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="stages" label="Number of Stages" name="stages" value={properties.stages ?? 10} onChange={handlePropertyChange} />);
             params.push(
                 <div key="condenser">
                     <label htmlFor="condenserType" className="text-xs text-gray-400 block mb-1">Condenser Type</label>
-                    <select id="condenserType" name="condenserType" value={properties.condenserType} onChange={handlePropertyChange} className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <select id="condenserType" name="condenserType" value={properties.condenserType ?? 'Total'} onChange={handlePropertyChange} className="w-full bg-slate-700 border border-slate-600 rounded-md px-3 py-1.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <option>Total</option>
                         <option>Partial</option>
                     </select>
                 </div>
             );
-            params.push(<PropertyInput key="dist-press" label="Pressure" name="pressure" unit="Pa" value={properties.pressure} onChange={handlePropertyChange} />);
-            params.push(<PropertyInput key="dist-temp" label="Temperature" name="temperature" unit="K" value={properties.temperature} onChange={handlePropertyChange} />);
-            params.push(<PropertyInput key="reflux" label="Reflux Ratio" name="refluxRatio" value={properties.refluxRatio} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="dist-press" label="Pressure" name="pressure" unit="Pa" value={properties.pressure ?? 1} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="dist-temp" label="Temperature" name="temperature" unit="K" value={properties.temperature ?? 373} onChange={handlePropertyChange} />);
+            params.push(<PropertyInput key="reflux" label="Reflux Ratio" name="refluxRatio" value={properties.refluxRatio ?? 2.5} onChange={handlePropertyChange} />);
             break;
     }
 

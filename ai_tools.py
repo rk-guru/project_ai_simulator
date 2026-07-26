@@ -129,6 +129,25 @@ def process_project_rag(api_key: str, project_id: str, file_path: str):
         raise e
 
 
+def get_simulation_results_from_db(project_id: str) -> List[Dict[str, Any]]:
+    """
+    Fetches the latest simulation results for a project from the database.
+    """
+    try:
+        from database import SessionLocal, Simulation
+        db = SessionLocal()
+        try:
+            sim = db.query(Simulation).filter(Simulation.project_id == project_id).order_by(Simulation.id.desc()).first()
+            if not sim or not sim.results_json:
+                return []
+
+            return json.loads(sim.results_json)
+        finally:
+            db.close()
+    except Exception as e:
+        print(f"Error fetching simulation results from DB: {e}")
+        return []
+
 def get_formatted_flow_diagram(nodes: List[Dict[str, Any]], edges: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Transforms raw nodes and edges from the frontend flow diagram
