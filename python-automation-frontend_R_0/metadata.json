@@ -1,5 +1,0 @@
-{
-  "name": "Python Automation Frontend",
-  "description": "A user interface for managing and running automation projects. It features a project sidebar for selection and creation, and a main content area to define a target URL and a sequence of steps for the automation script.",
-  "requestFramePermissions": []
-}
