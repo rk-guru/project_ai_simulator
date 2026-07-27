@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+pydantic
+sqlalchemy
+langchain
+langchain-google-genai
+langchain-community
+langgraph
+google-generativeai
+pypdf
+chromadb
+pandas
+graphviz
+python-multipart

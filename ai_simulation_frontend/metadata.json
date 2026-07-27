@@ -1,0 +1,5 @@
+{
+  "name": "AI Process Simulator",
+  "description": "An AI-powered process simulation tool. Design flowsheets using a drag-and-drop interface, interact with an AI assistant via a chatbot, upload relevant documents, and view simulation results in a structured table.",
+  "requestFramePermissions": []
+}
